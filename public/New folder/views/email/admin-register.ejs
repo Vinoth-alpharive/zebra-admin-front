@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        table {
+            width: 100%;
+
+            border-spacing: 0 0.5em;
+            padding-left: 40px;
+        }
+
+        .container {
+            padding-left: 80px;
+        }
+
+        .footer-table {
+            height: 120px;
+            background-color: #DCDCDC;
+            border: none;
+            margin-top: 70px;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .content-table {
+            background-color: #DCDCDC;
+            margin-top: 20px;
+        }
+
+        .line {
+            margin-top: -14px;
+            width: 1px;
+            height: 8vh;
+            position: absolute;
+            border-left: 3px solid darkgray;
+            margin: 16px;
+        }
+
+        .line-email {
+            margin-top: -8px;
+            width: 1px;
+            height: 7vh;
+            position: absolute;
+            border-left: 3px solid darkgray;
+            margin: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="width:60%">
+        <table>
+            <tr>
+                <td><img src="<%= siteurl %>/images/bbrun-logo.svg" alt="">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <hr />
+                </td>
+            </tr>
+        </table>
+        <table class="container">
+            <tr>
+                <td colspan="3">
+                    <h3 class="headling" style="text-align: left;font-size: 35px;color: #711E82;font-weight: bold;">
+                        Dear <%= name %>,</h3>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">You are invited as a admin for Social IVT Admin Portal,</td>
+            </tr>
+            <tr>
+                <td colspan="3">Please use the below credential to login:</td>
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+            <tr class="content-table" style="height: 130px;">
+                <td colspan="1" style="padding-left: 15px;width: 50px;">Link</td>
+                <td class="line"></td>
+                <td><a href="" style="padding-left: 45px;"><%= adminurl %></a> </td>
+            </tr>
+            <tr class="content-table" style="height: 100px">
+                <td style="padding-left: 15px;">Email</td>
+                <td class="line-email"></td>
+                <td style="padding-left: 35px;color: #00b482;"><%= email %></td>
+            </tr>
+            <tr class="content-table" style="height: 100px">
+                <td style="padding-left: 15px;">password</td>
+                <td class="line-email"></td>
+                <td style="padding-left: 45px;color: #00b482;"><%= password %></td>
+            </tr>
+            <tr>
+                <td style="padding-top: 60px;">Thank you.</td>
+            </tr>
+            <tr>
+                <td><img src="<%= siteurl %>/images/bbrun-logo.svg" alt="" style="width: 150px;">
+                </td>
+            </tr>
+            <!--footer table-->
+        </table>
+        <table class="footer-table">
+            <tr>
+                <td>
+            <tr>
+                <td style="  display: flex;
+            justify-content: center;">Copyright & B. Braun Melsungen AG</td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="" style="color: #711E82;text-decoration: underline;">Imprint | Terms of use |
+                        Privacy Policy | Terms & Conditions</a>
+                </td>
+
+            </tr>
+    </div>
+    </div>
+</body>
+
+</html>

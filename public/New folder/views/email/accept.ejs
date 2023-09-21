@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    table {
+      width: 100%;
+    }
+    .container {
+      padding-left: 40px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .footer-table {
+      font-family: Arial, Helvetica, sans-serif;
+      height: 120px;
+      background-color: #DCDCDC;
+      border: none;
+      margin-top: 70px;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div style="width:60%">
+    <table>
+      <tr>
+        <td><img src="<%= siteurl %>/images/bbrun-logo.svg" alt="">
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <hr />
+        </td>
+      </tr>
+    </table>
+    <table class="container">
+      <tr>
+        <td>
+          <h3 class="headling" style="text-align: left;font-size: 35px;color: #711E82;font-weight: bold;">
+            Your account has been accept</h3>
+        </td>
+      </tr>
+      <tr>
+        <td>Hello <%= name %>,</td>
+      </tr>
+      <tr>
+        <td><p>Thank you for signing up for B Braun IVT Social. Your account has been verified succesfully by the admin. You can login now. We're really happy to have you!.</p></td>
+      </tr>
+      <tr>
+        <td style=" padding-top: 20px">We're here to help if you need it. Visit the <a
+            style="text-decoration: underline;color: #00b482;" href="">BBraun
+            Support</a><br>
+          for more info or <a style="text-decoration: underline;color: #00b482;">Contact us.</a> </td>
+      </tr>
+      <tr>
+        <td style="padding-top: 20px;">Thank you.</td>
+      </tr>
+      <tr>
+        <td><img src="<%= siteurl %>/images/bbrun-logo.svg" alt="" style="width: 150px;">
+        </td>
+      </tr>
+      <!--footer table-->
+    </table>
+    <table class="footer-table">
+      <tr>
+        <td>
+      <tr>
+        <td style="  display: flex;justify-content: center;">Copyright & B. Braun Melsungen AG</td>
+      </tr>
+      <tr>
+        <td>
+          <a href="" style="color: #711E82;text-decoration: underline;">Imprint | Terms of use |Privacy Policy
+            | Terms & Conditions</a>
+        </td>
+
+      </tr>
+  </div>
+  </div>
+</body>
+
+</html>

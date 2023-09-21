@@ -1,0 +1,6 @@
+.gridbox{
+    display:"flex";
+    flex-direction: row;
+    vertical-align: middle;
+    box-sizing: border-box;
+}

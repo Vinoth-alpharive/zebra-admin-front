@@ -1,0 +1,33 @@
+version: "3"
+services:
+  # nginx:
+  #   image: nginx:latest
+  #   container_name: webserver
+  #   restart: unless-stopped
+  #   ports:
+  #     - 80:80
+  #     # - 443:443
+  #   volumes:
+  #     - ./template:/etc/nginx/nginx.conf
+  #     # - ./ssl/cifdaq.crt:/ssl/server.crt
+  #     # - ./ssl/private.key:/ssl/server.key
+
+  #   networks:
+  #     - default
+
+  zebra_admin:
+    build:
+      dockerfile: "Dockerfile"
+      context: "."
+    container_name: zebra_admin
+    volumes:
+      - ./build:/app/build
+    restart: unless-stopped
+    # ports:
+    #   - 4000:4000
+    networks:
+      - default
+networks:
+  default:
+    external:
+      name: Zebra-exchange
