@@ -10,6 +10,7 @@ import { useState } from "react";
 import { endpoints } from "../../../auth/url";
 import usercalls from "../../../auth/endpoints";
 import farmingABI from '../../../web3/ABI/farmingABI.json'
+import loader from '../../../assets/images/loader1.gif'
 
 import Web3 from 'web3';
 // Material Dashboard 2 React components
@@ -36,6 +37,8 @@ function InputDetail({ settabel, element }) {
     const [chainerro, setChainerror] = useState("")
     const [age, setAge] = useState('');
 
+    const [loading, setLoading] = useState(false)
+
     const submit = async () => {
         try {
             if (coin1.current.value === "") {
@@ -46,7 +49,7 @@ function InputDetail({ settabel, element }) {
                 setCoin3error("Please Enter Pool Update")
             }
             else {
-
+                setLoading(true)
                 const address = await window.ethereum.request({
                     method: "eth_requestAccounts"
                 });
@@ -67,6 +70,7 @@ function InputDetail({ settabel, element }) {
                         coin1.current.value = ""
                         coin2.current.value = ""
                         coin3.current.value = ""
+                        setLoading(false)
                         toast.success("Network Added successfully", {
                             duration: 3000,
                             position: 'top-right',
@@ -80,6 +84,7 @@ function InputDetail({ settabel, element }) {
                         })
                         settabel(true)
                     } else {
+                        setLoading(false)
                         toast.error(results.message, {
                             duration: 3000,
                             position: 'top-right',
@@ -95,9 +100,11 @@ function InputDetail({ settabel, element }) {
 
 
                 }
+                setLoading(false)
             }
         } catch (error) {
             console.log(error, "erro");
+            setLoading(false)
             toast.error("something went wrong", {
                 duration: 3000,
                 position: 'top-right',
@@ -117,6 +124,9 @@ function InputDetail({ settabel, element }) {
 
     return (
         <>
+            {
+                loading === true ? <div className='swap-loader'><div className='swap-loader-inner'><img src={loader} className='loadings' /></div></div> : <></>
+            }
             <Button variant="contained" style={{ color: "white", marginLeft: "31.5%" }} onClick={() => { settabel(true) }}>Back</Button>
             <div style={{ display: "flex", flexDirection: "column", width: "40%", margin: "auto", textAlign: "center", gap: "1em", padding: "1em" }}>
                 <TextField id="outlined-basic" label="Allocation Point"

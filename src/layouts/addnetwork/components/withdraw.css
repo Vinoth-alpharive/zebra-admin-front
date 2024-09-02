@@ -1,0 +1,12 @@
+svg.MuiSvgIcon-root.MuiSvgIcon-fontSizeInherit.MuiSelect-icon.MuiSelect-iconOutlined {
+    color: white;
+
+    display: flex;
+}
+
+
+
+div#demo-simple-select {
+    color: rgb(255, 255, 255);
+    border-color: white;
+}

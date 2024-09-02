@@ -28,7 +28,8 @@ import TextField from '@mui/material/TextField';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import 'react-toastify/dist/ReactToastify.css';
 import { element } from 'prop-types';
-
+import Web3 from 'web3';
+import erc20 from '../../web3/ABI/erc20.json';
 
 
 const style = {
@@ -64,15 +65,17 @@ function Users() {
   const [state, setState] = useState();
   const [network, setNetwork] = useState();
 
+  const [amountss, setAmountsss] = useState(0)
 
 
 
-
-  const [name, setname] = useState()
+  const [name, setname] = useState('')
   const [nameerror, setnameError] = useState(null);
 
   const [email, setEmail] = useState();
   const [emailerror, setemailError] = useState(null);
+
+  const [selected, setSelected] = useState()
 
   const [id, setId] = useState();
 
@@ -119,9 +122,15 @@ function Users() {
   }
 
   const updateValue = async (ele) => {
-    setId(ele?._id)
-    setname(ele?.name)
-    setEmail(ele?.rpc_Url)
+    setSelected(ele)
+    var WEB = new Web3(ele?.Network?.rpc_Url);
+    const conractInstance = await new WEB.eth.Contract(erc20, ele?.Reward_Token)
+    const bal = await conractInstance.methods.balanceOf(ele?.contractAddress).call()
+    const deci = await conractInstance.methods.decimals().call()
+    setAmountsss(Number(bal) / (10 ** Number(deci)))
+    // setId(ele?._id)
+    // setname(ele?.name)
+    // setEmail(ele?.rpc_Url)
   }
 
   const deletes = async () => {
@@ -154,33 +163,77 @@ function Users() {
   }
 
   const updates = async () => {
-    var url = endpoints.update_users;
+    // var url = endpoints.update_users;
+    console.log(selected, "selsec")
     try {
-      const payload = {
-        id: id,
-        chain: name,
-        rpc_Url: email,
-      }
-      const data = await path.postCall({ url, payload });
-      const result = await data.json();
-      if (result.success === true) {
-        setOpen(false)
-        getdata()
-        toast.success(result.message, {
-          duration: 3000,
-          position: 'top-right',
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: 'colored',
+      console.log(name, "dsfadf")
+      if (name == '') {
+        setnameError('Please Enter Amount')
+      } else {
+        const address = await window.ethereum.request({
+          method: "eth_requestAccounts"
+        });
+
+        var WEB = new Web3(window.ethereum);
+        const browserChainid = await WEB.eth.getChainId()
+        if (Number(browserChainid) != selected?.Network?.chainId) {
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: WEB.utils.toHex(selected?.Network?.chainId) }]
+          });
+        }
+        const conractInstance = await new WEB.eth.Contract(erc20, selected?.Reward_Token)
+        console.log(selected?.contractAddress, name, "sdelsef")
+        const deci = await conractInstance.methods.decimals().call()
+        console.log("🚀 ~ updates ~ deci:", deci, address[0], (Number(name) * (10 ** Number(deci))).toString())
+        // const trans = await conractInstance.methods.transfer(selected?.contractAddress, (Number(name) * (10 ** Number(deci))).toString()).send({
+        //   from: address[0]
+        // })
+        const trans = await conractInstance.methods.transfer(selected?.contractAddress, (Number(name) * (10 ** Number(deci))).toString()).send({
+          from: address[0]
         })
+        console.log("🚀 ~ trans ~ trans:", trans)
+        if (trans) {
+          setname('')
+          setOpen(false)
+          toast.success("Amount Added Successfully", {
+            duration: 3000,
+            position: 'top-right',
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: 'colored',
+          })
+        }
       }
+      // const payload = {
+      //   id: id,
+      //   chain: name,
+      //   rpc_Url: email,
+      // }
+      // const data = await path.postCall({ url, payload });
+      // const result = await data.json();
+      // if (result.success === true) {
+      //   setOpen(false)
+      //   getdata()
+      //   toast.success(result.message, {
+      //     duration: 3000,
+      //     position: 'top-right',
+      //     autoClose: 5000,
+      //     hideProgressBar: false,
+      //     closeOnClick: true,
+      //     pauseOnHover: true,
+      //     draggable: true,
+      //     progress: undefined,
+      //     theme: 'colored',
+      //   })
+      // }
     }
     catch (error) {
-      console.error(error);
+      console.error(error, "sefsduhfisudfhisduf");
     }
   }
 
@@ -228,6 +281,11 @@ function Users() {
             </MDButton> */}
             <MDButton color="info" size="small" onClick={() => { navigate(`${endpoints.front}/FarmingAddPairs`, { state: { data: element } }) }} >
               View
+            </MDButton>
+          </Grid>
+          <Grid item xs={12} md={4} >
+            <MDButton color="info" size="small" onClick={() => { setOpen(true); updateValue(element) }} >
+              Add Amount
             </MDButton>
           </Grid>
           {/* <Grid item xs={12} md={4} >
@@ -284,7 +342,7 @@ function Users() {
           <Fade in={open}>
             <Box sx={style}>
               <MDTypography id="transition-modal-title" variant="h5" component="h5">
-                Edit Chain
+                Add Amount
               </MDTypography>
               <div style={{ display: "flex", flexDirection: "column", margin: "auto", textAlign: "center", gap: "1em", padding: "1em" }}>
 
@@ -292,18 +350,20 @@ function Users() {
                   value={name}
                   onChange={(e) => {
                     setname(e.target.value); setnameError(null)
-                  }} label="Chain" variant="outlined" />
+                  }} label="Amount" variant="outlined" />
 
                 {nameerror && <p style={{ color: 'red', fontSize: "12px" }}> {nameerror}</p>}
 
-                <TextField id="outlined-basic" label="RpcUrl"
+                <label>Amount:{amountss} </label>
+
+                {/* <TextField id="outlined-basic" label="RpcUrl"
                   value={email}
                   onChange={(e) => {
                     //    console.log(e.target.value,"Done ")
                     setEmail(e.target.value); setemailError(null)
                   }} variant="outlined" />
 
-                {emailerror && <p style={{ color: 'red', fontSize: "12px" }}> {emailerror}</p>}
+                {emailerror && <p style={{ color: 'red', fontSize: "12px" }}> {emailerror}</p>} */}
 
               </div>
 
@@ -315,7 +375,7 @@ function Users() {
                   style={{ margin: "0 10px" }}
                   onClick={() => { updates() }}
                 >
-                  Update
+                  Add Amount
                 </MDButton>
               </Box>
             </Box>

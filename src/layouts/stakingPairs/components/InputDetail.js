@@ -14,10 +14,14 @@ import Select from '@mui/material/Select';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import stakingAbi from '../../../web3/ABI/stakingAbi.json'
+import ethStakingAddress from '../../../web3/contract/ethStakingAddress'
+import wanStakingAddress from '../../../web3/contract/wanStakingAddress'
 import Box from '@mui/material/Box';
 import axios from "axios";
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import loader from '../../../assets/images/loader1.gif'
 
 import { CTable } from '@coreui/react';
 import { CTableHead } from '@coreui/react';
@@ -109,11 +113,12 @@ function InputDetail({ settabel }) {
     const [coin5erro, setCoin5error] = useState("")
     const [coin6erro, setCoin6error] = useState("")
 
-
     const [chrr, setChrr] = useState([])
     const [chainerro, setChainerror] = useState("")
     const [age, setAge] = useState('');
     const [chaid, setChaiid] = useState("")
+
+    const [loading, setLoading] = useState(false)
 
     const handleChange = (event) => {
         setCoin6error("")
@@ -153,25 +158,28 @@ function InputDetail({ settabel }) {
                 setCoin6error("Please Select Network")
             }
             else {
+                console.log(age, "age")
+                setLoading(true)
                 const url = endpoints.stakingPairs;
                 const payload = {
                     Network: chaid
                 }
                 const data = await path.postCall({ url, payload });
                 const result = await data.json();
+                console.log("🚀 ~ file: InputDetail.js:166 ~ submit ~ result:", result)
                 const address = await window.ethereum.request({
                     method: "eth_requestAccounts"
                 });
                 const contract = new WEB.eth.Contract(result?.result?.abi);
                 let defaultAccount = address[0]
-
+                var transhash
                 const deployedContract = await contract
                     .deploy({ data: '0x' + result?.result?.bytecode })
                     .send({
-                        from: defaultAccount, gas: 5279233
+                        from: defaultAccount, gas: 5379233
                     })
-                    .on('error', function (error) { console.log(error) })
-                    .on('transactionHash', function (transactionHash) { })
+                    .on('error', function (error) { console.log(error); setLoading(false) })
+                    .on('transactionHash', function (transactionHash) { console.log(transactionHash, "hash"); transhash = transactionHash })
                     .on('receipt', function (receipt) { // contains the new contract address
                     })
                     .on('confirmation', function (confirmationNumber, receipt) { })
@@ -179,60 +187,81 @@ function InputDetail({ settabel }) {
                         return newContractInstance.options.address // instance with the new contract address
                     });
 
-                if (deployedContract !== undefined) {
-                    const contractInstance = await new WEB.eth.Contract(result?.result?.abi, deployedContract)
-                    const initialize = await contractInstance.methods.initialize(coin0.current.value, coin1.current.value, coin2.current.value, WEB.utils.toWei(coin3.current.value, 'ether'), new Date(startTime).getTime() / 1000, new Date(endTime).getTime() / 1000).send({
-                        from: address[0]
-                    })
-                    if (initialize) {
-                        const url = endpoints.stakingAddPairs;
-                        const payload = {
-                            LP_Token: coin0.current.value,
-                            Reward_Token: coin1.current.value,
-                            Dev_Address: coin2.current.value,
-                            Reward_Per_Sec: WEB.utils.toWei(coin3.current.value, 'ether'),
-                            Start_Time: new Date(startTime).getTime() / 1000,
-                            End_Time: new Date(endTime).getTime() / 1000,
-                            Network: chaid,
-                            contractAddress: deployedContract
-                        }
-                        const datas = await path.postCall({ url, payload });
-                        const results = await datas.json();
-                        if (results.success === true) {
-                            coin1.current.value = ""
-                            coin2.current.value = ""
-                            setAge("")
-                            toast.success("Network Added successfully", {
-                                duration: 3000,
-                                position: 'top-right',
-                                autoClose: 5000,
-                                hideProgressBar: false,
-                                closeOnClick: true,
-                                pauseOnHover: true,
-                                draggable: true,
-                                progress: undefined,
-                                theme: 'colored',
-                            })
-                            settabel(true)
-                        } else {
-                            toast.error(result.message, {
-                                duration: 3000,
-                                position: 'top-right',
-                                autoClose: 5000,
-                                hideProgressBar: false,
-                                closeOnClick: true,
-                                pauseOnHover: true,
-                                draggable: true,
-                                progress: undefined,
-                                theme: 'colored',
-                            })
-                        }
-                    }
+                const history = await WEB.eth.getTransaction(transhash)
+                console.log("🚀 ~ file: InputDetail.js:186 ~ submit ~ history:", history)
+                if (history) {
+                    if (deployedContract !== undefined) {
 
+                        // var contractInstance;
+                        // var contractAdd;
+                        // if (age?.name === 'Ethereum Mainnet') {
+                        //     contractInstance = await new WEB.eth.Contract(stakingAbi, ethStakingAddress)
+                        //     contractAdd = ethStakingAddress
+                        // } else if (age?.name === 'WAN') {
+                        //     contractInstance = await new WEB.eth.Contract(stakingAbi, wanStakingAddress)
+                        //     contractAdd = wanStakingAddress
+                        // }
+
+
+                        const contractInstance = await new WEB.eth.Contract(result?.result?.abi, deployedContract)
+
+                        const initialize = await contractInstance.methods.initialize(coin0.current.value, coin1.current.value, coin2.current.value, WEB.utils.toWei(coin3.current.value, 'ether'), new Date(startTime).getTime() / 1000, new Date(endTime).getTime() / 1000).send({
+                            from: address[0]
+                        })
+                        if (initialize) {
+                            const url = endpoints.stakingAddPairs;
+                            const payload = {
+                                LP_Token: coin0.current.value,
+                                Reward_Token: coin1.current.value,
+                                Dev_Address: coin2.current.value,
+                                Reward_Per_Sec: WEB.utils.toWei(coin3.current.value, 'ether'),
+                                Start_Time: new Date(startTime).getTime() / 1000,
+                                End_Time: new Date(endTime).getTime() / 1000,
+                                Network: chaid,
+                                contractAddress: deployedContract
+                            }
+                            const datas = await path.postCall({ url, payload });
+                            const results = await datas.json();
+                            if (results.success === true) {
+                                coin1.current.value = ""
+                                coin2.current.value = ""
+                                setAge("")
+                                setLoading(false)
+                                toast.success("Network Added successfully", {
+                                    duration: 3000,
+                                    position: 'top-right',
+                                    autoClose: 5000,
+                                    hideProgressBar: false,
+                                    closeOnClick: true,
+                                    pauseOnHover: true,
+                                    draggable: true,
+                                    progress: undefined,
+                                    theme: 'colored',
+                                })
+                                settabel(true)
+                            } else {
+                                setLoading(false)
+                                toast.error(result.message, {
+                                    duration: 3000,
+                                    position: 'top-right',
+                                    autoClose: 5000,
+                                    hideProgressBar: false,
+                                    closeOnClick: true,
+                                    pauseOnHover: true,
+                                    draggable: true,
+                                    progress: undefined,
+                                    theme: 'colored',
+                                })
+                            }
+                        }
+
+                    }
                 }
+                setLoading(false)
             }
         } catch (error) {
             console.log(error, "erro");
+            setLoading(false)
             toast.error("something went wrong", {
                 duration: 3000,
                 position: 'top-right',
@@ -249,6 +278,9 @@ function InputDetail({ settabel }) {
 
     return (
         <>
+            {
+                loading === true ? <div className='swap-loader'><div className='swap-loader-inner'><img src={loader} className='loadings' /></div></div> : <></>
+            }
             <Button variant="contained" style={{ color: "white", marginLeft: "31.5%" }} onClick={() => { settabel(true) }}>Back</Button>
             <div style={{ display: "flex", flexDirection: "column", width: "40%", margin: "auto", textAlign: "center", gap: "1em", padding: "1em" }}>
                 <TextField id="outlined-basic" label="LP token"

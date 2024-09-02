@@ -1,8 +1,8 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect  } from "react";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
-
+import { Link } from 'react-router-dom'
 import TextField from '@mui/material/TextField';
 
 import { CTable } from '@coreui/react';
@@ -37,14 +37,79 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-
+import Tabs from '@mui/material/Tabs';
+import PropTypes from 'prop-types';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import CircularProgress from '@mui/material/CircularProgress';
+import Chip from '@mui/material/Chip';
 import axios from "axios";
-
+import Modal from '@mui/material/Modal';
+import Switch from '@mui/material/Switch';
+import { styled } from '@mui/material/styles';
+import Tooltip from '@mui/material/Tooltip';
+import { ToastContainer, toast } from 'react-toastify';
+import TableContainer from '@mui/material/TableContainer';
+import Paper from '@mui/material/Paper';
 import * as React from 'react';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '700px',
+  bgcolor: '#fff',
+  color: '#000',
+  // border: '2px solid #000',
+  boxShadow: 24,
+  borderRadius: '15px',
+  p: '30px 5px 30px 30px',
+};
 
 
-const head = ["S.NO", "League Name", "Team", "Bet On", "Amount", "Status"]
 
+function CustomTabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          <div>{children}</div>
+        </Box>
+      )}
+    </div>
+  );
+}
+
+CustomTabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.number.isRequired,
+  value: PropTypes.number.isRequired,
+};
+
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
+
+
+const head = ["S.NO", "Project Name","Paid BY" , "Network" ,  "Transfer Amount", "Transaction Hash",  ]
+const head2 = ["S.NO", "Project Name","Token Name" , "Token Symbol" ,"Network" , "Paid BY",  "Transfer Amount", "Recieving token" , "Transaction Hash", "spender adress" ]
 const rows = [{ legename: "cricket", team: "india", beton: "cricket", amount: "100", status: "math" }]
 
 // const auth = sessionStorage.getItem('accesstoken');
@@ -84,36 +149,70 @@ const rows = [{ legename: "cricket", team: "india", beton: "cricket", amount: "1
 // });
 
 
+const AntSwitch = styled(Switch)(({ theme }) => ({
+  width: 28,
+  height: 16,
+  padding: 0,
+  display: 'flex',
+  '&:active': {
+    '& .MuiSwitch-thumb': {
+      width: 15,
+    },
+    '& .MuiSwitch-switchBase.Mui-checked': {
+      transform: 'translateX(9px)',
+    },
+  },
+  '& .MuiSwitch-switchBase': {
+    padding: 2,
+    '&.Mui-checked': {
+      transform: 'translateX(12px)',
+      color: '#fff',
+      '& + .MuiSwitch-track': {
+        opacity: 1,
+        backgroundColor: theme.palette.mode === 'dark' ? '#177ddc' : '#1890ff',
+      },
+    },
+  },
+  '& .MuiSwitch-thumb': {
+    boxShadow: '0 2px 4px 0 rgb(0 35 11 / 20%)',
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    transition: theme.transitions.create(['width'], {
+      duration: 200,
+    }),
+  },
+  '& .MuiSwitch-track': {
+    borderRadius: 16 / 2,
+    opacity: 1,
+    backgroundColor:
+      theme.palette.mode === 'dark' ? 'rgba(255,255,255,.35)' : 'rgba(0,0,0,.25)',
+    boxSizing: 'border-box',
+  },
+}));
 
-function FarmHistory() {
 
-  const [network , setNetwork ] = React.useState([]);
+function LaunchpadHistory() {
+
+  const [ transhist, setTranshist ] = useState([])
+  const [network, setNetwork] = React.useState([]);
 
 
-  const [age, setAge] = React.useState('');
+  const [age, setAge] = React.useState('admin');
 
-  const handleChange = async(event) => {
+  const handleChange = async (event) => {
     setAge(event.target.value);
-    const url = endpoints.transactionhis;
-    const payload = {
-      trade_at: "farming",
-      Network : event.target.value.name
-    }
-    try {
-      const data = await path.postCall({ url ,payload});
-      const result = await data.json();
-      if (result.success === true) {
-        if (result && result.result) {
-          buildData(result.result);
-          setLoading(false);
-        }
-      }
-    }
-    catch (error) {
-      console.error(error);
-    }
   };
 
+  const [creates, setCreates] = useState(null)
+
+  const handleClick = () => {
+    setCreates(true); // Start loading
+    setTimeout(() => {
+      setCreates(false);
+      navigate('/creates'); // Navigate to the other page after 3 seconds
+    }, 3000);
+  };
 
   const path = usercalls();
   const [collection, setCollection] = useState({})
@@ -123,18 +222,18 @@ function FarmHistory() {
     getdata();
   }, [matchid])
 
-  useEffect(()=> {
+  useEffect(() => {
     getnetwork();
-  },[])
+  }, [])
 
-  const getnetwork = async()=> {
+  const getnetwork = async () => {
     const url = endpoints.admin_Network;
     try {
-      const data = await path.getCall({url});
+      const data = await path.getCall({ url });
       const result = await data.json();
       setNetwork(result.result)
     } catch (error) {
-      
+
     }
   }
 
@@ -143,10 +242,10 @@ function FarmHistory() {
     setLoading(true);
     const url = endpoints.transactionhis;
     const payload = {
-      trade_at: "farming"
+      trade_at: "swap"
     }
     try {
-      const data = await path.postCall({ url ,payload });
+      const data = await path.postCall({ url, payload });
       const result = await data.json();
       if (result.success === true) {
         if (result && result.result) {
@@ -462,8 +561,178 @@ function FarmHistory() {
     },]
 
 
+
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = (item) => {
+    setSelected(item);
+    setOpen(true);
+  }
+  const handleClose = () => setOpen(false);
+
+
+  const [disable, setDisable] = useState(false)
+  const [launchPad, setLaunchPad] = useState([]);
+  const [selected, setSelected] = useState([]);
+  const [logo, setLogo] = useState('');
+  const [status, setStatus] = useState();
+
+
+  const handleDisable = async (ids, e) => {
+    // setDisable(!disable)
+    setStatus(!disable)
+
+    const url = endpoints.launchPadUpdate;
+    try {
+      alert(e.target.checked);
+      const payload = {
+        id: ids,
+        Status: e.target.checked
+      }
+      const data = await path.postCall({ url, payload });
+      const res = await data.json();
+
+      if (res?.success) {
+
+        toast.success(res?.message, {
+          duration: 3000,
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'colored',
+        })
+      } else {
+        toast.error(res?.message, {
+          duration: 3000,
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'colored',
+        })
+      }
+      getAllLaunchPads();
+      handleClose();
+    } catch (error) {
+      console.log(error, 'error');
+    }
+
+  }
+
+  const handleLogoUpdate = async (e) => {
+    setSelected({ ...selected, Logo: e.target.value });
+    setLogo(e.target.value)
+  }
+
+  const getAllLaunchPads = async () => {
+    const url = endpoints.launchPad;
+    try {
+      const payload = {
+        type: age
+      }
+      const data = await path.postCall({ url, payload });
+      const res = await data.json();
+
+      if (res?.success) {
+        setLaunchPad(res?.result);
+      } else {
+        setLaunchPad([]);
+      }
+
+    } catch (error) {
+      console.log(error, 'error');
+    }
+
+  }
+
+  useEffect(() => {
+    getAllLaunchPads();
+  }, [age])
+
+  const handleApprove = async (action) => {
+
+    const url = endpoints.launchPadUpdate;
+    try {
+      const payload = {
+        id: selected?._id,
+        logo: logo,
+        Status: action
+      }
+      const data = await path.postCall({ url, payload });
+      const res = await data.json();
+
+      if (res?.success) {
+
+        toast.success(res?.message, {
+          duration: 3000,
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'colored',
+        })
+      } else {
+        toast.error(res?.message, {
+          duration: 3000,
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'colored',
+        })
+      }
+      getAllLaunchPads();
+      handleClose();
+    } catch (error) {
+      console.log(error, 'error');
+    }
+
+  }
+
+  const [values, setValues] = React.useState(0);
+
+  const handleChangeValues = (event, newValue) => {
+    setValues(newValue);
+  } 
+
+  const gettransaction = async() => {
+    const url = endpoints.LaunchpadHistory;
+    const data = await path.postCall({ url });
+    const res = await data.json();
+    setTranshist(res?.result)
+  }
+
+  useEffect(()=>{
+    gettransaction()
+  },[])
+
+
   return (
+    <div className="whole-history">
     <DashboardLayout>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <DashboardNavbar />
       <TabContext value={value}>
         {/* <Grid container px={3}>
@@ -503,34 +772,31 @@ function FarmHistory() {
                     borderRadius="lg"
                     coloredShadow="info"
                   >
-                   <div style={{display:'flex', justifyContent:'space-between'}}>
-                    <MDTypography variant="h6" color="white">
-                      Transaction History
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <MDTypography variant="h6" color="white">
+                        Launchpad History
+                      </MDTypography>
+                      <Box sx={{ minWidth: 120, }} style={{ paddingRight: "2vh", paddingTop: "4px" }}>
+                        {/* <FormControl fullWidth>
+                          <InputLabel id="demo-simple-select-label" style={{ color: "white", fontSize: '16px', paddingBottom: '1vh' }}>Chain</InputLabel>
+                          <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={age}
+                            label="Chain"
+                            style={{ padding: "10px" }}
+                            onChange={handleChange}
+                          >
 
-                    </MDTypography>
-                    <Box sx={{ minWidth: 120,}} style={{paddingRight:"2vh", paddingTop:"4px"}}>
-      <FormControl fullWidth>
-      <InputLabel id="demo-simple-select-label" style={{color:"white", borderColor:"white", fontSize:'16px', paddingBottom:'1vh'}}>Chain</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={age}
-          label="chain"
-          style={{padding:"10px"}}
-          onChange={handleChange}
-        >
-
-          {network?.map((item) => (
-          <MenuItem value={item}>{item.name}</MenuItem>
-          ))}
-{/*             
-          <MenuItem value={10}>Ten</MenuItem> */}
-          
-        </Select>
-      </FormControl>
-    </Box>
+                            <MenuItem value={'user'}>Enabled</MenuItem>
+                            <MenuItem value={'disabled'}>Disabled</MenuItem>
+                            <MenuItem value={30}>Pending</MenuItem>
+                            <MenuItem value={'admin'}>All</MenuItem>
+                          </Select>
+                        </FormControl> */}
+                      </Box>
                     </div>
-                
+
                   </MDBox>
                   <MDBox pt={3}>
 
@@ -555,100 +821,118 @@ function FarmHistory() {
                         })}
                       </CTableBody>
                     </CTable> */}
+                    <Grid spacing={0} >
+                      <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                        <div className="transaction-tab">
+                          <Box sx={{ width: '100%' }}>
+                            <Box>
+                              <Tabs value={values} onChange={handleChangeValues} aria-label="basic tabs example">
+                                <Tab label=" Admin transaction" {...a11yProps(0)} />
+                                <Tab label="Launchpad transaction" {...a11yProps(1)} />
+                              </Tabs>
+                            </Box>
+                            <CustomTabPanel value={values} index={0}  >
+
+                              <div className="launchpad-table">
+                                <CTable style={{ width: "100%" }}>
+                                  <CTableHead>
+                                    <CTableRow>
+                                      {head.map((value, index) => {
+                                        return <CTableHeaderCell scope="col" key={index}>{value}</CTableHeaderCell>
+                                      })}
+                                    </CTableRow>
+                                  </CTableHead>
+                                  <CTableBody>
+                                    {transhist?.map((value, index) => {
+                                      return <CTableRow key={index}>
+                                        <CTableDataCell scope="row" >{index + 1}</CTableDataCell>
+                                        <CTableDataCell scope="row" >{value?.Project_Name}</CTableDataCell>
+                                        <CTableDataCell scope="row" >{value?.pay_by}</CTableDataCell>
+                                        <CTableDataCell scope="row" >{value?.Network}</CTableDataCell>
+                                        <CTableDataCell scope="row" >{value?.admin_Usdt}</CTableDataCell>
+                                        { value?.Network === "Wanchain" ? 
+                                        
+                                          <CTableDataCell scope="row" ><span onClick={()=> window.open(`https://www.wanscan.org/tx/${value?.Admin_Transactionhas}` , "_blank")}>{value?.Admin_Transactionhas.slice(0,5)}....{value?.Admin_Transactionhas.slice(59,66)}</span></CTableDataCell> :
+                                         <> 
+                                         {
+                                            value?.Network === "Ethereum" ? 
+                                          <CTableDataCell scope="row" ><span onClick={()=> window.open(`https://etherscan.io/tx/${value?.Admin_Transactionhas}` , "_blank")}>{value?.Admin_Transactionhas.slice(0,5)}....{value?.Admin_Transactionhas.slice(59,66)}</span></CTableDataCell>
+                                          :
+                                          <CTableDataCell scope="row" ><span onClick={()=> window.open(`https://explorer.xinfin.network/tx/${value?.Admin_Transactionhas}` , "_blank")}>{value?.Admin_Transactionhas.slice(0,5)}....{value?.Admin_Transactionhas.slice(59,66)}</span></CTableDataCell>
+                                          }
+                                          </>
+                                         
+                                        }
+                                        
+                                      </CTableRow>
+                                    })}
+                                  </CTableBody>
+                                </CTable>
+
+                              </div>
+
+                            </CustomTabPanel>
+                            <CustomTabPanel value={values} index={1}>
+                              <div className="launchpad-table">
+                                <CTable style={{ width: "100%" }}>
+                                  <CTableHead>
+                                    <CTableRow>
+                                      {head2.map((value, index) => {
+                                        return <CTableHeaderCell scope="col" key={index}>{value}</CTableHeaderCell>
+                                      })}
+                                    </CTableRow>
+                                  </CTableHead>
+                                  <CTableBody>
+                                    {transhist.map((value, index) => {
+                                      return <CTableRow key={index}>
+                                        <CTableDataCell scope="row" >{index + 1}</CTableDataCell>
+                                        <CTableDataCell scope="row" >{value?.Project_Name}</CTableDataCell>
+                                        <CTableDataCell scope="row" >{value?.Token_Name}</CTableDataCell>
+                                        <CTableDataCell scope="row" >{value?.Token_symbol}</CTableDataCell>
+                                        <CTableDataCell scope="row" >{value?.Network}</CTableDataCell>
+                                        <CTableDataCell scope="row" >{value?.pay_by}</CTableDataCell>
+                                        <CTableDataCell scope="row" >{value?.Usdt}</CTableDataCell>
+                                        <CTableDataCell scope="row" >{value?.Tokens}</CTableDataCell>
+                                        { value?.Network === "Wanchain" ? 
+                                        
+                                          <CTableDataCell scope="row" ><span onClick={()=> window.open(`https://www.wanscan.org/tx/${value?.Transactionhas}` , "_blank")}>{value?.Admin_Transactionhas.slice(0,5)}....{value?.Admin_Transactionhas.slice(59,66)}</span></CTableDataCell> :
+                                         <> 
+                                         {
+                                            value?.Network === "Ethereum" ? 
+                                          <CTableDataCell scope="row" ><span onClick={()=> window.open(`https://etherscan.io/tx/${value?.ransactionhas}` , "_blank")}>{value?.Admin_Transactionhas.slice(0,5)}....{value?.Admin_Transactionhas.slice(59,66)}</span></CTableDataCell>
+                                          :
+                                          <CTableDataCell scope="row" ><span onClick={()=> window.open(`https://explorer.xinfin.network/tx/${value?.Transactionhas}` , "_blank")}>{value?.Admin_Transactionhas.slice(0,5)}....{value?.Admin_Transactionhas.slice(59,66)}</span></CTableDataCell>
+                                          }
+                                          </>
+                                         
+                                        }
+                                        <CTableDataCell scope="row" >{value?.User_address.slice(0,5)}...{value?.User_address.slice(37,42)}</CTableDataCell>
+                                      </CTableRow>
+                                    })}
+                                  </CTableBody>
+                                </CTable>
+
+                              </div>
+                            </CustomTabPanel>
+                          </Box>
+                        </div>
+                      </Grid>
 
 
-                    {loading ?
-                      <>
-                        {collection && collection.rows &&
-                          <DataTable
-                            table={collection}
-                            isSorted={false}
-                            entriesPerPage={false}
-                            showTotalEntries={false}
-                            noEndBorder
-                            loading={loading} />
-                        }
-                      </> : <>
-                        {collection && collection.rows && collection.rows.length > 0 ? (
-                          <DataTable
-                            table={collection}
-                            isSorted={false}
-                            entriesPerPage={false}
-                            showTotalEntries={false}
-                            noEndBorder
-                          />) :
-                          (
-                            <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                              No Record Found
-                            </div>
-                          )
-                        }
-                      </>}
+                    </Grid>
+
                   </MDBox>
                 </Card>
               </Grid>
             </Grid>
           </MDBox>
         </TabPanel>
-        <TabPanel value="2">
-          <MDBox pt={6} pb={3}>
-            <Grid container>
-              <Grid item xs={12}>
-                <Card>
-                  <MDBox
-                    mx={2}
-                    mt={-3}
-                    py={3}
-                    px={2}
-                    variant="gradient"
-                    bgColor="info"
-                    borderRadius="lg"
-                    coloredShadow="info"
-                  >
-                    <MDTypography variant="h6" color="white">
-                      Betting History
-                    </MDTypography>
-                  </MDBox>
-                  <MDBox pt={3}>
 
-                    {loading ?
-                      <>
-                        {collection && collection.rows &&
-                          <DataTable
-                            table={collection}
-                            isSorted={false}
-                            entriesPerPage={false}
-                            showTotalEntries={false}
-                            noEndBorder
-                            loading={loading} />
-                        }
-                      </> : <>
-                        {collection && collection.rows && collection.rows.length ? (
-                          <DataTable
-                            table={collection}
-                            isSorted={false}
-                            entriesPerPage={false}
-                            showTotalEntries={false}
-                            noEndBorder
-                          />) :
-                          (
-                            <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                              No Record Found
-                            </div>
-                          )
-                        }
-                      </>
-                    }
-                  </MDBox>
-                </Card>
-              </Grid>
-            </Grid>
-          </MDBox>
-        </TabPanel>
       </TabContext>
 
     </DashboardLayout >
+    </div>
   );
 }
 
-export default FarmHistory;
+export default LaunchpadHistory;

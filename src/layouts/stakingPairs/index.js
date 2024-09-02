@@ -36,6 +36,9 @@ import { element } from 'prop-types';
 import { useRef } from 'react';
 import Web3 from 'web3';
 import stakingAbi from '../../web3/ABI/stakingAbi.json'
+import erc20Abi from '../../web3/ABI/erc20.json'
+import wanStakingAddress from '../../web3/contract/wanStakingAddress'
+import ethStakingAddress from '../../web3/contract/ethStakingAddress'
 import { makeStyles } from '@mui/styles';
 
 const style = {
@@ -142,9 +145,12 @@ function Users() {
 
   const getdata = async () => {
     setLoading(true);
-    var url = endpoints.stakingPairs;
+    var url = endpoints.getstakingPairs;
+    var payload = {
+      _id: 'all'
+    }
     try {
-      const data = await path.getCall({ url });
+      const data = await path.postCall({ url, payload });
       const result = await data.json();
       console.log(result, "res")
       if (result.success === true) {
@@ -196,6 +202,7 @@ function Users() {
 
   const updates = async () => {
     var url = endpoints.stakingLiq;
+    console.log(id, "ids")
     try {
       if (Allocaiton.current.value === "") {
         setnameError("Please Enter Allocation")
@@ -210,7 +217,10 @@ function Users() {
           method: "eth_requestAccounts"
         });
         const contractInstance = await new WEB.eth.Contract(stakingAbi, id?.contractAddress)
-        const initialize = await contractInstance.methods.addPool(Allocaiton.current.value, Boolean(poolupdate.current.value), WEB.utils.toWei(minDeposite.current.value, 'ether'), lockperiod).send({
+        const erc20Instance = await new WEB.eth.Contract(erc20Abi, id?.LP_Token)
+        var decimal = await erc20Instance.methods.decimals().call()
+        console.log("🚀 ~ updates ~ decimal:", decimal, Number(minDeposite.current.value) * (10 ** Number(decimal)))
+        const initialize = await contractInstance.methods.addPool(Allocaiton.current.value, Boolean(poolupdate.current.value), Number(minDeposite.current.value) * (10 ** Number(decimal)), lockperiod).send({
           from: address[0]
         })
         if (initialize) {
@@ -296,10 +306,10 @@ function Users() {
               View
             </MDButton> */}
             {element?.Min_Deposit === "" ?
-              <MDButton color="info" size="small" onClick={() => { setOpen(true); updateValue(element) }} >
+              <MDButton color="info" size="small" onClick={() => { setOpen(true); updateValue(element); console.log(element, "element") }} >
                 View
               </MDButton> :
-              <MDButton color="info" size="small" onClick={() => { }} >
+              <MDButton color="info" size="small" onClick={() => { console.log(element, "element") }} >
                 View
               </MDButton>}
 

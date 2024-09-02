@@ -6,10 +6,12 @@ import { useLocation, Link } from "react-router-dom";
 import { Socket } from '../../../socket/useSocket';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { endpoints } from "../../../auth/url";
+import usercalls from "../../../auth/endpoints";
 
 import { CTable } from '@coreui/react';
 import { CTableHead } from '@coreui/react';
@@ -25,6 +27,13 @@ import DataTable from "examples/Tables/DataTable";
 import MDTypography from "components/MDTypography";
 // import { useRef, useState } from "react";
 
+import * as React from 'react';
+import Box from '@mui/material/Box';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+
 
 const head = ["S.NO", "League Name", "Team", "Bet On", "Amount", "Status"]
 
@@ -39,14 +48,45 @@ const useStyles = makeStyles({
     },
 });
 
-function WithdrawList(props) {
+function WithdrawList({ collection, loading, chain }) {
+
+    const path = usercalls();
+
+    const [age, setAge] = React.useState('');
+
+
+
+    const [network, setNetwork] = useState([])
+
+    useEffect(() => {
+        getnetwork();
+    }, [])
+
+    const getnetwork = async () => {
+        const url = endpoints.admin_Network;
+        try {
+            const data = await path.postCall({ url });
+            const result = await data.json();
+            setNetwork(result.result)
+        } catch (error) {
+
+        }
+    }
+
+
+
     const classes = useStyles();
     //  const path = usercalls();
-    const collection = props.collection;
-    const loading = props.loading;
-    const tablename = props.tablename;
-    const status = props.status;
+    // const collection = collection;
+    // const loading = loading;
+    // const tablename = props.tablename;
+    // const status = props.status;
     const route = useLocation().pathname.split("/").slice(1);
+
+    const handleChange = (event) => {
+        setAge(event.target.value);
+        // chain(event.target.value)
+    };
 
     // const soc = Socket()
 
@@ -172,8 +212,6 @@ function WithdrawList(props) {
         )
     }
 
-
-
     return (
         <>
             <MDBox pt={6} pb={3}>
@@ -191,8 +229,27 @@ function WithdrawList(props) {
                                 coloredShadow="info"
                             >
                                 <MDTypography variant="h6" color="white" className={classes.title}>
-                                    <div style={{ display: "flex", width: "100%" }}>
+                                    <div style={{ display: "flex", width: "100%", justifyContent: "space-between" }}>
                                         <h4 style={{ width: "85%" }}>Admin Fee</h4>
+                                        <Box sx={{ minWidth: 120, }} style={{ paddingRight: "2vh", paddingTop: "4px" }}>
+                                            <FormControl fullWidth>
+                                                <InputLabel id="demo-simple-select-label" style={{ color: "white", fontSize: '16px', paddingBottom: '1vh' }}>Chain</InputLabel>
+                                                <Select
+                                                    labelId="demo-simple-select-label"
+                                                    id="demo-simple-select"
+                                                    value={age}
+                                                    label="Chain"
+                                                    style={{ padding: "10px", display: "flex", color: 'white' }}
+                                                    onChange={handleChange}
+                                                >
+
+                                                    {network?.map((item) => (
+                                                        <MenuItem value={item} onClick={() => { chain(item?._id) }} >{item.name}</MenuItem>
+                                                    ))}
+
+                                                </Select>
+                                            </FormControl>
+                                        </Box>
                                         {/* <Button variant="contained" style={{ color: "white" }} onClick={() => { settabel(false) }}>Create</Button> */}
                                     </div>
                                 </MDTypography>

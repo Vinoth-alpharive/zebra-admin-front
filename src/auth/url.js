@@ -1,5 +1,7 @@
 const BaseUrl = "https://letswinsports.io/service/api/v1";
-const adminBaseUrl = "http://143.244.132.176/zebraApi";
+// const adminBaseUrl = "http://143.244.132.176/zebraApi";
+const adminBaseUrl = "https://zebraswap.exchange/zebraApi";
+
 const adminBaseUrlv2 = "https://letswinsports.io/service/api/v2/admin";
 const userBaseUrl = "https://letswinsports.io/service/api/v1/users";
 const paymentBaseUrl = "https://letswinsports.io/service/api/v1/payment";
@@ -34,7 +36,7 @@ export const endpoints = {
     update_user: `${adminBaseUrl}/admin/updateAdminFee`,
     update_users: `${adminBaseUrl}/admin/UpdateNetwork`,
     stakingLiq: `${adminBaseUrl}/admin/stakingAddLiquidity`,
-
+    LaunchpadHistory: `${adminBaseUrl}/users/LaunchpadHistory`,
 
     //Sub Admin
     subadmincreate: `${adminBaseUrl}/create`,
@@ -53,15 +55,18 @@ export const endpoints = {
     paymenthistorytype: `${paymentBaseUrl}/listtransactionstype`,
     withdrawlist: `${adminBaseUrl}/auth/addSubAdmin`,
     withdrawlists: `${adminBaseUrl}/admin/getAdminFee`,
-    admin_Network: `${adminBaseUrl}/admin/getNetwork`,
+    admin_Network: `${adminBaseUrl}/admin/getNetworkFull`,
     farmingPairs: `${adminBaseUrl}/admin/farmingPairs`,
     delete_user: `${adminBaseUrl}/bet365/deleteSubadminById`,
     withdrawhistory: `${adminBaseUrl}/withdraw-history`,
     withdrawinitiate: `${paymentBaseUrl}/withdraw_from_admin`,
     withdrawedit: `${paymentBaseUrl}/withdraw-edit`,
+    removePais: `${adminBaseUrl}/admin/removePair`,
+    removeNetwork: `${adminBaseUrl}/admin/removeNetwork`,
 
     //Transaction
     overalltransaction: `${adminBaseUrl}/auth/transactionHistory`,
+    forms: `${adminBaseUrl}/auth/forms`,
 
     //adminwallet
     adminwallet: `${adminBaseUrl}/adminwallet`,
@@ -70,6 +75,9 @@ export const endpoints = {
     getLiquidity: `${adminBaseUrl}/admin/getAssets`,
     getchain: `${adminBaseUrl}/admin/getNetwork`,
     addasset: `${adminBaseUrl}/admin/addAssets`,
+    getFactoryContract: `${adminBaseUrl}/admin/getFactoryContract`,
+    FactoryContract: `${adminBaseUrl}/admin/FactoryContract`,
+    RouterContract: `${adminBaseUrl}/admin/RouterContract`,
     addNetwork: `${adminBaseUrl}/admin/addNetwork`,
     farmingPairs: `${adminBaseUrl}/admin/farmingPairs`,
     farmingAddPairs: `${adminBaseUrl}/admin/farmingAddPairs`,
@@ -77,6 +85,7 @@ export const endpoints = {
     farmingLiquiPairs: `${adminBaseUrl}/admin/farmingLiquidity`,
 
     stakingPairs: `${adminBaseUrl}/admin/stakingPairs`,
+    getstakingPairs: `${adminBaseUrl}/admin/getstakingPairs`,
     stakingAddPairs: `${adminBaseUrl}/admin/stakingAddPairs`,
 
     //Cricket Matches
@@ -86,6 +95,8 @@ export const endpoints = {
     cricketMatchdetailsInfo: `${adminBaseUrl}/match`,
     getmatch: `${adminBaseUrl}/2day-matches`,
     playerinfo: `${BaseUrl}/users/player-info`,
+    launchPad: `${adminBaseUrl}/users/getLaunchPad`,
+    launchPadUpdate: `${adminBaseUrl}/users/updatelaunchPad`,
     cricketBettingHistory: `${adminBaseUrlv2}/cricket-user-betting-history-admin`,
     //football matches
     listfootballtournament: `${adminBaseUrl}/football-list-tournament`,

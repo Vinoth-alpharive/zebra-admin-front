@@ -28,7 +28,9 @@ import Box from '@mui/material/Box';
 import Web3 from 'web3';
 import routeABI from '../../../web3/ABI/routeABI'
 import routerAddress from '../../../web3/contract/routerAddress'
+import ethrouterAddress from '../../../web3/contract/ethrouterAddress'
 import erc20Abi from '../../../web3/ABI/erc20'
+import loader from '../../../assets/images/loader1.gif'
 
 const style = {
     position: 'absolute',
@@ -82,21 +84,28 @@ const useStyles = makeStyles({
 
 
 function UserView(props) {
-
     var WEB = new Web3(window.ethereum);
     const classes = useStyles();
     const path = usercalls();
     const getUser = props.getUser;
-    const Viewdetails = props.Viewdetails;
+    const ViewUserdetails = props.ViewUserdetails;
     const userviewdetails = props.userdata;
     const detail = props.detail;
+    const sts = props.sts
     const selc = props.selc;
+
+    const [loading, setLoading] = useState(false)
     const [userdataa, setUserdataa] = useState({
         token: ''
     });
     const [open, setOpen] = React.useState(false);
+    // const Viewdetails = props.Viewdetails;
     const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+    const handleClose = () => {
+        // // setOpen(false);
+        // console.log("pres")
+        // Viewdetails()
+    }
     const [changeMode, setChangeMode] = useState('')
 
     const tokena = React.useRef()
@@ -211,53 +220,281 @@ function UserView(props) {
 
     const AddLiquidity = async () => {
         try {
-            console.log(tokena.current.value)
-            console.log(tokenb.current.value)
-            console.log(date.getTime())
             if (tokena.current.value !== undefined && tokenb.current.value !== undefined) {
+                setLoading(true)
                 const address = await window.ethereum.request({
                     method: "eth_requestAccounts"
                 });
-                const routeInstance = new WEB.eth.Contract(
-                    routeABI,
-                    routerAddress
-                );
-                const token1 = new WEB.eth.Contract(
-                    erc20Abi,
-                    selc.address1
-                );
-                const token2 = new WEB.eth.Contract(
-                    erc20Abi,
-                    selc.address2
-                );
-                const app1 = await token1.methods.approve(routerAddress, tokena.current.value).send({
-                    from: address[0]
-                })
-                const app2 = await token2.methods.approve(routerAddress, tokenb.current.value).send({
-                    from: address[0]
-                })
 
-                if (app1 && app2) {
-                    const addliq = await routeInstance.methods.addLiquidity(selc.address1, selc.address2, WEB.utils.toWei(tokena.current.value, 'ether'), WEB.utils.toWei(tokenb.current.value, 'ether'), 10, 10, address[0], date.getTime()).send({
-                        from: address[0]
-                    })
-                    if (addliq) {
-                        toast.success('Liquidity Added Successfully', {
-                            duration: 3000,
-                            position: 'top-right',
-                            autoClose: 5000,
-                            hideProgressBar: false,
-                            closeOnClick: true,
-                            pauseOnHover: true,
-                            draggable: true,
-                            progress: undefined,
-                            theme: 'colored',
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: WEB.utils.toHex(selc?.network?.chainId) }]
+                })
+                var routeInstance = new WEB.eth.Contract(
+                    JSON.parse(selc?.router_Abi),
+                    selc?.router_contract
+                );
+
+                console.log(selc?.router_contract, "tokesn")
+
+                var WETHS = await routeInstance.methods.WETH().call()
+                console.log("🚀 ~ AddLiquidity ~ WETHS:", WETHS)
+                // if (selc?.network?.name === 'Ethereum Mainnet') {
+                //     routeInstance = new WEB.eth.Contract(
+                //         routeABI,
+                //         ethrouterAddress
+
+                //     );
+                // } else if (selc?.network?.name === 'WAN') {
+                //     routeInstance = new WEB.eth.Contract(
+                //         routeABI,
+                //         routerAddress
+                //     );
+                // }
+
+                console.log(selc.address1, selc.address2, selc?.network?.name, "2")
+                if (selc?.address1 == '-' && selc?.address2 != '-') {
+                    // const token1 = new WEB.eth.Contract(
+                    //     erc20Abi,
+                    //     selc.address1
+                    // );
+                    const token2 = new WEB.eth.Contract(
+                        erc20Abi,
+                        selc.address2
+                    );
+
+                    var app1;
+                    var app2;
+
+                    // const decimal1 = await token1.methods.decimals().call()
+                    const decimal2 = await token2.methods.decimals().call()
+
+                    // var app = await token1.methods.allowance(address[0], selc?.router_contract).call()
+                    var app3 = await token2.methods.allowance(address[0], selc?.router_contract).call()
+                    console.log("🚀 ~ AddLiquidity ~ app3:", app3)
+
+                    // if (Number(app) === 0) {
+                    //     app1 = await token1.methods.approve(selc?.router_contract, (Number(tokena.current.value) * 10 ** Number(decimal1)).toString()).send({
+                    //         from: address[0]
+                    //     })
+                    // } else {
+                    app1 = "1"
+                    // }
+
+                    if (Number(app3) === 0 || Number(app3) < Number(tokenb.current.value) * 10 ** Number(decimal2)) {
+                        app2 = await token2.methods.approve(selc?.router_contract, (Number(tokenb.current.value) * 10 ** Number(decimal2)).toString(), (Number(tokena.current.value) * 10 ** Number(18)).toString()).send({
+                            from: address[0]
                         })
+                    } else {
+                        app2 = '2'
                     }
 
+                    if (app1 && app2) {
+                        console.log(selc.address2, (Number(tokenb.current.value) * 10 ** Number(decimal2)).toString(), 10, 10, address[0], date.getTime(), "asjhifuhsfdiuh")
+                        const addliq = await routeInstance.methods.addLiquidityETH(selc.address2, (Number(tokenb.current.value) * 10 ** Number(decimal2)).toString(), 10, 10, address[0], date.getTime()).send({
+                            from: address[0],
+                            value: (Number(tokena.current.value) * 10 ** Number(18)).toString(),
+                        })
+                        console.log(addliq, "adsfd")
+                        // const addliq = await routeInstance.methods.addLiquidity(selc.address1, selc.address2, WEB.utils.toWei(tokena.current.value, 'ether'), WEB.utils.toWei(tokenb.current.value, 'ether'), 10, 10, address[0], date.getTime()).send({
+                        //     from: address[0]
+                        // })
+                        if (addliq) {
+                            setLoading(false)
+                            toast.success('Liquidity Added Successfully', {
+                                duration: 3000,
+                                position: 'top-right',
+                                autoClose: 5000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                                progress: undefined,
+                                theme: 'colored',
+                            })
+                            sts()
+                        }
+
+                    }
+                } else if (selc?.address1 != '-' && selc?.address2 == '-') {
+                    const token1 = new WEB.eth.Contract(
+                        erc20Abi,
+                        selc.address1
+                    );
+                    const token2 = new WEB.eth.Contract(
+                        erc20Abi,
+                        selc.address2
+                    );
+
+                    var app1;
+                    var app2;
+
+                    const decimal1 = await token1.methods.decimals().call()
+                    const decimal2 = await token2.methods.decimals().call()
+                    // if (selc?.network?.name === 'Ethereum Mainnet') {
+                    //     app1 = await token1.methods.approve(ethrouterAddress, (Number(tokena.current.value) * 10 ** Number(decimal1)).toString()).send({
+                    //         from: address[0]
+                    //     })
+                    //     app2 = await token2.methods.approve(ethrouterAddress, (Number(tokenb.current.value) * 10 ** Number(decimal2)).toString()).send({
+                    //         from: address[0]
+                    //     })
+                    // } else if (selc?.network?.name === 'WAN') {
+                    //     var app = await token1.methods.allowance(address[0], routerAddress).call()
+                    //     var app3 = await token2.methods.allowance(address[0], routerAddress).call()
+
+                    //     if (Number(app) === 0) {
+                    //         app1 = await token1.methods.approve(routerAddress, (Number(tokena.current.value) * 10 ** Number(decimal1)).toString()).send({
+                    //             from: address[0]
+                    //         })
+                    //     } else {
+                    //         app1 = "1"
+                    //     }
+
+                    //     if (Number(app3) === 0) {
+                    //         app2 = await token2.methods.approve(routerAddress, (Number(tokenb.current.value) * 10 ** Number(decimal2)).toString()).send({
+                    //             from: address[0]
+                    //         })
+                    //     } else {
+                    //         app2 = '2'
+                    //     }
+                    // }
+
+                    var app = await token1.methods.allowance(address[0], selc?.router_contract).call()
+                    var app3 = await token2.methods.allowance(address[0], selc?.router_contract).call()
+
+                    if (Number(app) === 0) {
+                        app1 = await token1.methods.approve(selc?.router_contract, (Number(tokena.current.value) * 10 ** Number(decimal1)).toString()).send({
+                            from: address[0]
+                        })
+                    } else {
+                        app1 = "1"
+                    }
+
+                    if (Number(app3) === 0) {
+                        app2 = await token2.methods.approve(selc?.router_contract, (Number(tokenb.current.value) * 10 ** Number(decimal2)).toString()).send({
+                            from: address[0]
+                        })
+                    } else {
+                        app2 = '2'
+                    }
+
+                    if (app1 && app2) {
+                        const addliq = await routeInstance.methods.addLiquidity(selc.address1, selc.address2, (Number(tokena.current.value) * 10 ** Number(decimal1)).toString(), (Number(tokenb.current.value) * 10 ** Number(decimal2)).toString(), 10, 10, address[0], date.getTime()).send({
+                            from: address[0]
+                        })
+
+                        // const addliq = await routeInstance.methods.addLiquidity(selc.address1, selc.address2, WEB.utils.toWei(tokena.current.value, 'ether'), WEB.utils.toWei(tokenb.current.value, 'ether'), 10, 10, address[0], date.getTime()).send({
+                        //     from: address[0]
+                        // })
+                        if (addliq) {
+                            setLoading(false)
+                            toast.success('Liquidity Added Successfully', {
+                                duration: 3000,
+                                position: 'top-right',
+                                autoClose: 5000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                                progress: undefined,
+                                theme: 'colored',
+                            })
+                            sts()
+                        }
+
+                    }
+                } else {
+                    const token1 = new WEB.eth.Contract(
+                        erc20Abi,
+                        selc.address1
+                    );
+                    const token2 = new WEB.eth.Contract(
+                        erc20Abi,
+                        selc.address2
+                    );
+
+                    var app1;
+                    var app2;
+
+                    const decimal1 = await token1.methods.decimals().call()
+                    const decimal2 = await token2.methods.decimals().call()
+                    // if (selc?.network?.name === 'Ethereum Mainnet') {
+                    //     app1 = await token1.methods.approve(ethrouterAddress, (Number(tokena.current.value) * 10 ** Number(decimal1)).toString()).send({
+                    //         from: address[0]
+                    //     })
+                    //     app2 = await token2.methods.approve(ethrouterAddress, (Number(tokenb.current.value) * 10 ** Number(decimal2)).toString()).send({
+                    //         from: address[0]
+                    //     })
+                    // } else if (selc?.network?.name === 'WAN') {
+                    //     var app = await token1.methods.allowance(address[0], routerAddress).call()
+                    //     var app3 = await token2.methods.allowance(address[0], routerAddress).call()
+
+                    //     if (Number(app) === 0) {
+                    //         app1 = await token1.methods.approve(routerAddress, (Number(tokena.current.value) * 10 ** Number(decimal1)).toString()).send({
+                    //             from: address[0]
+                    //         })
+                    //     } else {
+                    //         app1 = "1"
+                    //     }
+
+                    //     if (Number(app3) === 0) {
+                    //         app2 = await token2.methods.approve(routerAddress, (Number(tokenb.current.value) * 10 ** Number(decimal2)).toString()).send({
+                    //             from: address[0]
+                    //         })
+                    //     } else {
+                    //         app2 = '2'
+                    //     }
+                    // }
+
+                    var app = await token1.methods.allowance(address[0], selc?.router_contract).call()
+                    var app3 = await token2.methods.allowance(address[0], selc?.router_contract).call()
+
+                    if (Number(app) === 0) {
+                        app1 = await token1.methods.approve(selc?.router_contract, (Number(tokena.current.value) * 10 ** Number(decimal1)).toString()).send({
+                            from: address[0]
+                        })
+                    } else {
+                        app1 = "1"
+                    }
+
+                    if (Number(app3) === 0) {
+                        app2 = await token2.methods.approve(selc?.router_contract, (Number(tokenb.current.value) * 10 ** Number(decimal2)).toString()).send({
+                            from: address[0]
+                        })
+                    } else {
+                        app2 = '2'
+                    }
+
+                    if (app1 && app2) {
+                        const addliq = await routeInstance.methods.addLiquidity(selc.address1, selc.address2, (Number(tokena.current.value) * 10 ** Number(decimal1)).toString(), (Number(tokenb.current.value) * 10 ** Number(decimal2)).toString(), 10, 10, address[0], date.getTime()).send({
+                            from: address[0]
+                        })
+
+                        // const addliq = await routeInstance.methods.addLiquidity(selc.address1, selc.address2, WEB.utils.toWei(tokena.current.value, 'ether'), WEB.utils.toWei(tokenb.current.value, 'ether'), 10, 10, address[0], date.getTime()).send({
+                        //     from: address[0]
+                        // })
+                        if (addliq) {
+                            setLoading(false)
+                            toast.success('Liquidity Added Successfully', {
+                                duration: 3000,
+                                position: 'top-right',
+                                autoClose: 5000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                                progress: undefined,
+                                theme: 'colored',
+                            })
+                            sts()
+                        }
+
+                    }
                 }
+
             }
         } catch (error) {
+            setLoading(false)
             console.log(error)
         }
 
@@ -267,6 +504,9 @@ function UserView(props) {
 
     return (
         <>
+            {
+                loading === true ? <div className='swap-loader'><div className='swap-loader-inner'><img src={loader} className='loadings' /></div></div> : <></>
+            }
             <ToastContainer
                 position="top-right"
                 autoClose={5000}
@@ -335,7 +575,7 @@ function UserView(props) {
                                 </MDTypography>
                             </Grid>
                             <Grid item md={1} xs={12}>
-                                <MDButton variant="gradient" color="dark" onClick={Viewdetails} fullWidth>
+                                <MDButton variant="gradient" color="dark" onClick={ViewUserdetails} fullWidth>
                                     Back
                                 </MDButton>
                             </Grid>
@@ -401,13 +641,11 @@ function UserView(props) {
                                     <MDTypography variant="h6" className={classes.details}>
                                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                                             <DemoContainer components={['DatePicker']}>
-                                                <DatePicker label="Basic date picker" onChange={(e) => { console.log(e?.$d, "e"); setdate(e?.$d) }} />
+                                                <DatePicker label="Basic date picker" onChange={(e) => { setdate(e?.$d) }} />
                                             </DemoContainer>
                                         </LocalizationProvider>
                                     </MDTypography>
                                 </Grid>
-
-                                {console.log(userviewdetails, "userviewdetails")}
                                 {/* <Grid item md={4} xs={12} className={classes.grid}>
                            <MDTypography variant="h6" className={classes.details}>
                                Balance

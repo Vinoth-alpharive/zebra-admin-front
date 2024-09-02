@@ -89,8 +89,8 @@ function Basic() {
           // }
 
         }
-        else {
-          toast.error(result.msg, {
+        else{
+          toast.error("password is incorrect", {
             position: 'top-right',
             autoClose: 5000,
             hideProgressBar: false,
@@ -101,6 +101,18 @@ function Basic() {
             theme: 'colored',
           })
         }
+        // else{
+        //   toast.error("password is incorrect", {
+        //     position: 'top-right',
+        //     autoClose: 5000,
+        //     hideProgressBar: false,
+        //     closeOnClick: true,
+        //     pauseOnHover: true,
+        //     draggable: true,
+        //     progress: undefined,
+        //     theme: 'colored',
+        //   })
+        // }
       }
       catch (error) {
         console.error(error);

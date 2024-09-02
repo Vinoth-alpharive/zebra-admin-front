@@ -43,6 +43,8 @@ import axios from "axios";
 import * as React from 'react';
 
 
+
+
 const head = ["S.NO", "League Name", "Team", "Bet On", "Amount", "Status"]
 
 const rows = [{ legename: "cricket", team: "india", beton: "cricket", amount: "100", status: "math" }]
@@ -85,22 +87,23 @@ const rows = [{ legename: "cricket", team: "india", beton: "cricket", amount: "1
 
 
 
-function FarmHistory() {
+function SwapHistory() {
 
-  const [network , setNetwork ] = React.useState([]);
+
+  const [network, setNetwork] = React.useState([]);
 
 
   const [age, setAge] = React.useState('');
 
-  const handleChange = async(event) => {
+  const handleChange = async (event) => {
     setAge(event.target.value);
     const url = endpoints.transactionhis;
     const payload = {
-      trade_at: "farming",
-      Network : event.target.value.name
+      trade_at: "swap",
+      Network: event.target.value.name
     }
     try {
-      const data = await path.postCall({ url ,payload});
+      const data = await path.postCall({ url, payload });
       const result = await data.json();
       if (result.success === true) {
         if (result && result.result) {
@@ -115,6 +118,7 @@ function FarmHistory() {
   };
 
 
+
   const path = usercalls();
   const [collection, setCollection] = useState({})
   const [loading, setLoading] = useState(true);
@@ -123,32 +127,33 @@ function FarmHistory() {
     getdata();
   }, [matchid])
 
-  useEffect(()=> {
+  useEffect(() => {
     getnetwork();
-  },[])
+  }, [])
 
-  const getnetwork = async()=> {
+  const getnetwork = async () => {
     const url = endpoints.admin_Network;
     try {
-      const data = await path.getCall({url});
+      const data = await path.getCall({ url });
       const result = await data.json();
       setNetwork(result.result)
     } catch (error) {
-      
+
     }
   }
 
 
   const getdata = async () => {
     setLoading(true);
-    const url = endpoints.transactionhis;
+    const url = endpoints.forms;
     const payload = {
-      trade_at: "farming"
+      trade_at: "swap"
     }
     try {
-      const data = await path.postCall({ url ,payload });
+      const data = await path.postCall({ url, payload });
       const result = await data.json();
       if (result.success === true) {
+        console.log(result, "resijo")
         if (result && result.result) {
           buildData(result.result);
           setLoading(false);
@@ -192,7 +197,7 @@ function FarmHistory() {
       // )
       temp.username = (
         <MDTypography variant="caption" color="text" fontWeight="bold" >
-          {element?.User_Address}
+          {element?.Project_Name}
         </MDTypography>
       )
       // temp.tournamentname = (
@@ -203,7 +208,7 @@ function FarmHistory() {
       temp.matchname = (
         <MDTypography variant="caption" color="text" fontWeight="medium" style={{ display: 'flex', alignItems: 'center', width: '100%', margin: 'auto', gap: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'end', gap: '5px', margin: 'auto' }}>
-            <b style={{ color: 'black', textAlign: 'right' }}>{element?.Pair} </b>
+            <b style={{ color: 'black', textAlign: 'right' }}>{element?.Token_Ticker} </b>
 
             {/* <img src={element.match_info.home_team_logo ? element.match_info.home_team_logo : "dummyFlag.png"} alt="home_team_logo" style={{ width: "25px" }} /> */}
           </div>
@@ -224,22 +229,37 @@ function FarmHistory() {
       // )
       temp.betamount = (
         <MDTypography variant="caption" color="text" fontWeight="medium">
-          {element?.Trade_type}
+          {element?.Website}
         </MDTypography>
       )
       temp.betinfo = (
         <MDTypography variant="caption" color="text" fontWeight="medium">
-          {element?.Coin_name}
+          {element?.Nature_Of_Product[0]}
         </MDTypography>
       )
       temp.winprice = (
         <MDTypography variant="caption" color="text" fontWeight="medium">
-          {parseFloat(element?.Amount).toFixed(4)}
+          {element?.Other_Cex}
         </MDTypography>
       )
       temp.betstatus = (
         <MDTypography variant="caption" color="text" fontWeight="medium">
-          {parseFloat(element?.Price).toFixed(4)}
+          {element?.TimeLine}
+        </MDTypography>
+      )
+      temp.ref = (
+        <MDTypography variant="caption" color="text" fontWeight="medium">
+          {element?.Referred}
+        </MDTypography>
+      )
+      temp.third = (
+        <MDTypography variant="caption" color="text" fontWeight="medium">
+          {element?.ThirdParty_Listing}
+        </MDTypography>
+      )
+      temp.third_party = (
+        <MDTypography variant="caption" color="text" fontWeight="medium">
+          {element?.Working_Liquidity}
         </MDTypography>
       )
       // temp.betinfo = (
@@ -412,14 +432,18 @@ function FarmHistory() {
       columns: [
         { Header: "SR.No", accessor: "srno", align: "center" },
         // { Header: "Email", accessor: "email", align: "center" },
-        { Header: "User Name", accessor: "username", align: "center" },
+        { Header: "Project Name", accessor: "username", align: "center" },
         // { Header: "Tournament Name", accessor: "tournamentname", align: "center" },
-        { Header: "Pair", accessor: "matchname", align: "center" },
+        { Header: "Token Ticker", accessor: "matchname", align: "center" },
         // { Header: "Match Time", accessor: "time", align: "center" },
-        { Header: "Trade Type", accessor: "betamount", align: "center" },
-        { Header: "Buy Coin", accessor: "betinfo", align: "center" },
-        { Header: "Amount", accessor: "winprice", align: "center" },
-        { Header: "Price", accessor: "betstatus", align: "center" }
+        { Header: "Official Website", accessor: "betamount", align: "center" },
+        { Header: "Nature of product", accessor: "betinfo", align: "center" },
+        { Header: "Discussion with other CEXs", accessor: "winprice", align: "center" },
+        { Header: "Target timeline", accessor: "betstatus", align: "center" },
+        { Header: "Referred by ", accessor: "ref", align: "center" },
+        { Header: "third-party listing agent", accessor: "third", align: "center" },
+        { Header: " liquidity service providerss", accessor: "third_party", align: "center" },
+
 
       ],
       rows: tempArr
@@ -460,8 +484,6 @@ function FarmHistory() {
       value: 'CRICKET',
       label: 'Farming',
     },]
-
-
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -503,34 +525,31 @@ function FarmHistory() {
                     borderRadius="lg"
                     coloredShadow="info"
                   >
-                   <div style={{display:'flex', justifyContent:'space-between'}}>
-                    <MDTypography variant="h6" color="white">
-                      Transaction History
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <MDTypography variant="h6" color="white">
+                        Forms
 
-                    </MDTypography>
-                    <Box sx={{ minWidth: 120,}} style={{paddingRight:"2vh", paddingTop:"4px"}}>
-      <FormControl fullWidth>
-      <InputLabel id="demo-simple-select-label" style={{color:"white", borderColor:"white", fontSize:'16px', paddingBottom:'1vh'}}>Chain</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={age}
-          label="chain"
-          style={{padding:"10px"}}
-          onChange={handleChange}
-        >
+                      </MDTypography>
+                      <Box sx={{ minWidth: 120, }} style={{ paddingRight: "2vh", paddingTop: "4px" }}>
+                        {/* <FormControl fullWidth>
+                          <InputLabel id="demo-simple-select-label" style={{ color: "white", fontSize: '16px', paddingBottom: '1vh' }}>Chain</InputLabel>
+                          <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={age}
+                            label="Chain"
+                            style={{ padding: "10px" }}
+                            onChange={handleChange}
+                          >
+                            {network?.map((item) => (
+                              <MenuItem value={item}>{item.name}</MenuItem>
+                            ))}
 
-          {network?.map((item) => (
-          <MenuItem value={item}>{item.name}</MenuItem>
-          ))}
-{/*             
-          <MenuItem value={10}>Ten</MenuItem> */}
-          
-        </Select>
-      </FormControl>
-    </Box>
+                          </Select>
+                        </FormControl> */}
+                      </Box>
                     </div>
-                
+
                   </MDBox>
                   <MDBox pt={3}>
 
@@ -651,4 +670,4 @@ function FarmHistory() {
   );
 }
 
-export default FarmHistory;
+export default SwapHistory;

@@ -34,6 +34,7 @@ import { element } from 'prop-types';
 
 import routeABI from '../../web3/ABI/routeABI'
 import routerAddress from '../../web3/contract/routerAddress'
+import routerethAddress from '../../web3/contract/ethrouterAddress'
 
 const style = {
   position: "absolute",
@@ -70,10 +71,17 @@ function Users() {
   const [name, setname] = useState()
   const [nameerror, setnameError] = useState(null);
 
+  const [routerAbi, setRouterAbi] = useState()
+  const [routerContract, setRouterContract] = useState()
+
   const [email, setEmail] = useState();
   const [emailerror, setemailError] = useState(null);
 
   const [userId, setUserId] = useState();
+
+  const [selcId, setSelecId] = useState()
+
+  const [sts, setSts] = useState()
 
   function isValidEmail(email) {
     return /\S+@\S+\.\S+/.test(email);
@@ -90,19 +98,23 @@ function Users() {
   const ViewUserdetails = () => {
     setViewdetails(!viewdetails);
   }
-  useEffect(() => {
-    getdata();
-  }, [])
+  // useEffect(() => {
+  //   getdata();
+  // }, [])
 
   var WEB = new Web3(window.ethereum);
 
-  const getdata = async () => {
+  const getdata = async (data) => {
     setLoading(true);
     var url = endpoints.withdrawlists;
+    var payload = {
+      Network: data
+    }
     try {
-      const data = await path.getCall({ url });
+      const data = await path.postCall({ url, payload });
       const result = await data.json();
-      console.log(result, "res")
+      console.log("🚀 ~ file: index.js:114 ~ getdata ~ result:", result)
+      // console.log(result, "res")
       if (result.success === true) {
         if (result && result.result) {
           buildData(Array.isArray(result.result) ? result?.result : new Array(result?.result))
@@ -119,6 +131,9 @@ function Users() {
   const updateValue = async (ele) => {
     setname(ele?.Address)
     setEmail(ele?.Percentage)
+    setRouterAbi(JSON.parse(ele?.router_Abi))
+    setRouterContract(ele?.router_contract)
+    setSelecId(ele?._id)
   }
 
   const deletes = async () => {
@@ -150,19 +165,22 @@ function Users() {
     }
   }
 
+  const chainrouter = (data) => {
+    setSts(data)
+    getdata(data)
+  }
+
   const updates = async () => {
     var url = endpoints.update_user;
     try {
-
       const address = await window.ethereum.request({
         method: "eth_requestAccounts"
       });
-
-      const routeInstance = new WEB.eth.Contract(
-        routeABI,
-        routerAddress
+      console.log(routerAbi, "routerAbi")
+      var routeInstance = new WEB.eth.Contract(
+        routerAbi,
+        routerContract
       );
-
       const app1 = await routeInstance.methods.updateFeeAndAddress(name, email).send({
         from: address[0]
       })
@@ -171,6 +189,7 @@ function Users() {
         const payload = {
           Address: name,
           Percentage: email,
+          _id: selcId
         }
         const data = await path.postCall({ url, payload });
         const result = await data.json();
@@ -358,14 +377,19 @@ function Users() {
       //     {element?.Address}
       //   </MDTypography>
       // )
+      temp.router = (
+        <MDTypography variant="caption" color="text" fontWeight="medium">
+          {element?.router_contract}
+        </MDTypography>
+      )
       temp.email = (
         <MDTypography variant="caption" color="text" fontWeight="medium">
-          {element?.Percentage}
+          {element?.Percentage ? element?.Percentage : "-"}
         </MDTypography>
       )
       temp.name = (
         <MDTypography variant="caption" color="text" fontWeight="medium">
-          {element?.Address}
+          {element?.Address ? element?.Address : "-"}
         </MDTypography>
       )
       temp.action = (
@@ -392,6 +416,7 @@ function Users() {
     });
     setCollection({
       columns: [
+        { Header: "RouterContract", accessor: "router", width: "10%", align: "center" },
         { Header: "Address", accessor: "name", width: "10%", align: "center" },
         { Header: "Percentage", accessor: "email", align: "center" },
         { Header: "Action", accessor: "action", width: "10%", align: "center" },
@@ -474,6 +499,7 @@ function Users() {
         loading={loading}
         status={status}
         Viewdetails={ViewUserdetails}
+        chain={chainrouter}
         tablename="Withdraw Request" />
 
     </DashboardLayout >

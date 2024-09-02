@@ -7,6 +7,7 @@ import KYC from "layouts/kyc";
 import Bidding from "layouts/bidding";
 import FarmHistory from "layouts/farmhistory"
 import SwapHistory from "layouts/swaphistory";
+import Forms from 'layouts/Forms'
 import AddNetwork from "layouts/addnetwork"
 import FarmingPairs from 'layouts/farmingPairs'
 import FarmingAddPairs from 'layouts/farmingAddPairs'
@@ -28,6 +29,8 @@ import GamesList from "layouts/gameslist";
 import FootBall from "layouts/football"
 import Cricket from "layouts/cricket"
 import CMS from 'layouts/cms'
+import Launchpad from './layouts/Launchpad/index';
+import LaunchpadHistory from './layouts/LaunchpadHistory/index'
 
 import { endpoints } from "auth/url";
 // import SignUp from "layouts/authentication/sign-up";
@@ -67,7 +70,7 @@ if (type === "admin") {
       type: "collapse",
       name: "Exchange History",
       key: "betting",
-      icon: <Icon fontSize="small">dashboard</Icon>,
+      icon: <Icon fontSize="small">repeat</Icon>,
       route: `${endpoints.front}/ExchangeHistory`,
       component: <Bidding />,
     },
@@ -83,15 +86,31 @@ if (type === "admin") {
       type: "collapse",
       name: "Swap History",
       key: "swap",
-      icon: <Icon fontSize="small">dashboard</Icon>,
+      icon: <Icon fontSize="small">repeat</Icon>,
       route: `${endpoints.front}/SwapHistory`,
       component: <SwapHistory />,
     },
     {
       type: "collapse",
+      name: "Launchpad",
+      key: "Launchpad",
+      icon: <Icon fontSize="small">launch</Icon>,
+      route: `${endpoints.front}/launchpad`,
+      component: <Launchpad />,
+    },
+    {
+      type: "collapse",
+      name: "Launchpad History",
+      key: "LaunchpadHistory",
+      icon: <Icon fontSize="small">history</Icon>,
+      route: `${endpoints.front}/launchpadhistory`,
+      component: <LaunchpadHistory />,
+    },
+    {
+      type: "collapse",
       name: "Admin Fee",
       key: "Afees",
-      icon: <Icon fontSize="small">dashboard</Icon>,
+      icon: <Icon fontSize="small">person</Icon>,
       route: `${endpoints.front}/AdminFee`,
       component: <Withdraw />,
     },
@@ -163,6 +182,14 @@ if (type === "admin") {
       icon: <Icon fontSize="small">group_icon</Icon>,
       route: `${endpoints.front} /sub-admin`,
       component: <SubAdmin />,
+    },
+    {
+      type: "collapse",
+      name: "Forms",
+      key: "forms",
+      icon: <Icon fontSize="small">feed</Icon>,
+      route: `${endpoints.front}/Forms`,
+      component: <Forms />,
     },
     // {
     //   type: "collapse",
@@ -256,7 +283,7 @@ if (type === "admin") {
       type: "collapse",
       name: "Add Chain",
       key: "transaction",
-      icon: <Icon fontSize="small">repeat</Icon>,
+      icon: <Icon fontSize="small">add</Icon>,
       route: `${endpoints.front}/addChain`,
       component: <AddNetwork />,
     },

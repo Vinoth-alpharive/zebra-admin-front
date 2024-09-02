@@ -77,11 +77,11 @@ function LiquidityAdd(props) {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     const [changeMode, setChangeMode] = useState('')
-    const [chrr , setChrr] = useState([])
-    const [ coin1erro, setCoin1error] = useState("")
-    const [ coin2erro, setCoin2error] = useState("")
-    const [ chainerro, setChainerror] = useState("")
-    const [ chaid , setChaiid ] = useState("")
+    const [chrr, setChrr] = useState([])
+    const [coin1erro, setCoin1error] = useState("")
+    const [coin2erro, setCoin2error] = useState("")
+    const [chainerro, setChainerror] = useState("")
+    const [chaid, setChaiid] = useState("")
     const [age, setAge] = React.useState('');
     const coin1 = useRef()
     const coin2 = useRef()
@@ -96,38 +96,38 @@ function LiquidityAdd(props) {
     }
 
     const handleChange = (event) => {
-        
+
         setAge(event.target.value);
-        setChaiid(event.target.value._id)
-      };
+        setChaiid(event.target.value)
+    };
 
     const validate = () => {
         const c1 = isAddress(coin1.current.value)
         const c2 = isAddress(coin2.current.value)
-         if(coin1.current.value === ""){
+        if (coin1.current.value === "") {
             setCoin1error("Please provide address")
-         }else{
+        } else {
             setCoin1error("")
-         }
-          if(coin2.current.value === ""){
+        }
+        if (coin2.current.value === "") {
             setCoin2error("Please provide address")
-         }else{
+        } else {
             setCoin2error("")
-         }
-        
-         if(coin1.current.value !== "" && c1 === false){
-            console.log(c1,"c1");
+        }
+
+        if (coin1.current.value !== "" && c1 === false) {
+            console.log(c1, "c1");
             setCoin1error("Invalid Address")
-        }else{
+        } else {
             setCoin2error("")
         }
-         if(coin2.current.value !== "" && c2 === false){
-            console.log(c2,"c2");
+        if (coin2.current.value !== "" && c2 === false) {
+            console.log(c2, "c2");
             setCoin2error("Invalid Address")
-        }else{
+        } else {
             setCoin2error("")
         }
-        
+
     }
 
     const cha = async () => {
@@ -137,41 +137,70 @@ function LiquidityAdd(props) {
             const result = await data.json();
             setChrr(result.result)
         } catch (error) {
-            console.log(error,"error");
+            console.log(error, "error");
         }
     }
 
     useEffect(() => {
         cha();
-      }, [])
+    }, [])
 
-    const submit = async() => {
-            try {
-                if(coin1.current.value === ""){
-                    setCoin1error("Please provide address")
-                }else if(coin2.current.value === ""){
-                    setCoin2error("Please provide address")
+    const submit = async () => {
+        try {
+            if (coin1.current.value === "") {
+                setCoin1error("Please provide address")
+            } else if (coin2.current.value === "") {
+                setCoin2error("Please provide address")
+            }
+            else if (age === "") {
+                setChainerror("Please select chain")
+            } else {
+                setCoin1error("")
+                setCoin2error("")
+                setChainerror("")
+                const payload = {
+                    "token1": coin1.current.value,
+                    "token2": coin2.current.value,
+                    "chain": chaid
                 }
-                else if( age === ""){
-                    setChainerror("Please select chain")
-                 }else{
-                    setCoin1error("")
-                    setCoin2error("")   
-                    setChainerror("")  
-                    const payload = {
-                        "token1": coin1.current.value,
-                        "token2": coin2.current.value,
-                        "chain" : chaid
-                    }
-        const url = endpoints.addasset;
-        const data = await path.postCall({ url, payload });
-        const result = await data.json();
-        if(result.success === true){
-            coin1.current.value = ""
-            coin2.current.value = ""
-            setAge("")
-            toast.success("Pair Added successfully", {
-                 duration: 3000,
+                const url = endpoints.addasset;
+                const data = await path.postCall({ url, payload });
+                const result = await data.json();
+                if (result.success === true) {
+                    coin1.current.value = ""
+                    coin2.current.value = ""
+                    setAge("")
+                    toast.success("Pair Added successfully", {
+                        duration: 3000,
+                        position: 'top-right',
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: 'colored',
+                    })
+                } else {
+                    toast.error(result.message, {
+                        duration: 3000,
+                        position: 'top-right',
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: 'colored',
+                    })
+                }
+            }
+
+
+        } catch (error) {
+            console.log(error, "erro");
+            toast.error("something went wrong", {
+                duration: 3000,
                 position: 'top-right',
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -180,40 +209,11 @@ function LiquidityAdd(props) {
                 draggable: true,
                 progress: undefined,
                 theme: 'colored',
-                })
-        }else{
-            toast.error(result.message, {
-                duration: 3000,
-               position: 'top-right',
-               autoClose: 5000,
-               hideProgressBar: false,
-               closeOnClick: true,
-               pauseOnHover: true,
-               draggable: true,
-               progress: undefined,
-               theme: 'colored',
-               })
+            })
         }
-                 }
-                
-            
-         } catch (error) {
-                console.log(error,"erro");
-                toast.error("something went wrong", {
-                    duration: 3000,
-                   position: 'top-right',
-                   autoClose: 5000,
-                   hideProgressBar: false,
-                   closeOnClick: true,
-                   pauseOnHover: true,
-                   draggable: true,
-                   progress: undefined,
-                   theme: 'colored',
-                   })
-            }
 
 
-        
+
     }
 
     // const formik = useFormik({
@@ -359,8 +359,8 @@ function LiquidityAdd(props) {
                                             inputRef={coin1}
                                             onChange={validate}
                                         />
-                                        {coin1erro !== "" ? 
-                                        <span style= { {color : "red",fontSize: "15px" }}>{coin1erro}</span>
+                                        {coin1erro !== "" ?
+                                            <span style={{ color: "red", fontSize: "15px" }}>{coin1erro}</span>
                                             :
                                             <></>
                                         }
@@ -377,35 +377,35 @@ function LiquidityAdd(props) {
                                             inputRef={coin2}
                                             onChange={validate}
                                         />
-                                        {coin2erro !== "" ? 
-                                        <span style= { {color : "red",fontSize: "15px" }}>{coin2erro}</span>
-                                        :
-                                        <></>
+                                        {coin2erro !== "" ?
+                                            <span style={{ color: "red", fontSize: "15px" }}>{coin2erro}</span>
+                                            :
+                                            <></>
                                         }
                                     </MDBox>
                                 </Grid>
                                 <Grid item xs={12} md={4} lg={4} mt={3} >
-                                <Box sx={{ minWidth: 120 }} className={classes.selectboxmui}>
-                                 <FormControl fullWidth>
-                                   <InputLabel id="demo-simple-select-label">Chain</InputLabel>
-                                    <Select
-                                    labelId="demo-simple-select-label"
-                                    id="demo-simple-select"
-                                    value={age}
-                                    label="Chain"
-                                    onChange={handleChange}
-                                    >
-                                    {chrr?.map((item) => (
-                                        <MenuItem value={item}>{item.name}</MenuItem>
-                                      ))}
-                                    </Select>
-                                </FormControl>
-                                {chrr.length > 0  ? 
-                                        <span style= { {color : "red",fontSize: "15px" }}>{chainerro}</span>
+                                    <Box sx={{ minWidth: 120 }} className={classes.selectboxmui}>
+                                        <FormControl fullWidth>
+                                            <InputLabel id="demo-simple-select-label">Chain</InputLabel>
+                                            <Select
+                                                labelId="demo-simple-select-label"
+                                                id="demo-simple-select"
+                                                value={age}
+                                                label="Chain"
+                                                onChange={handleChange}
+                                            >
+                                                {chrr?.map((item) => (
+                                                    <MenuItem value={item}>{item.name}</MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                        {chrr.length > 0 ?
+                                            <span style={{ color: "red", fontSize: "15px" }}>{chainerro}</span>
                                             :
                                             <></>
                                         }
-                                </Box>
+                                    </Box>
                                 </Grid>
                                 {/* <Grid item xs={12} md={4} lg={4} mt={3} >
                                     <MDBox >

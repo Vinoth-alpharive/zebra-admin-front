@@ -26,6 +26,15 @@ import DataTable from "examples/Tables/DataTable";
 import MDTypography from "components/MDTypography";
 import { useRef } from "react";
 
+//drop down 
+import * as React from 'react';
+import Box from '@mui/material/Box';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import "./withdraw.css";
+
 
 const head = ["S.NO", "League Name", "Team", "Bet On", "Amount", "Status"]
 
@@ -41,6 +50,9 @@ const useStyles = makeStyles({
 });
 
 function WithdrawList(props) {
+
+
+
     const classes = useStyles();
     //  const path = usercalls();
     const collection = props.collection;
@@ -80,6 +92,13 @@ function WithdrawList(props) {
     const [network, setNetwork] = useState();
 
     function Createtabel() {
+
+        const [age, setAge] = React.useState('');
+
+        const handleChange = (event) => {
+          setAge(event.target.value);
+        };
+        
         return (
             <CTable style={{ width: "100%" }}>
                 <CTableHead>
@@ -128,6 +147,24 @@ function WithdrawList(props) {
                                 <MDTypography variant="h6" color="white" className={classes.title}>
                                     <div style={{ display: "flex", width: "100%" }}>
                                         <h4 style={{ width: "85%" }}>Add Chain </h4>
+                                        <Box sx={{ minWidth: 120,}} style={{paddingRight:"2vh", paddingTop:"4px"}}>
+      {/* <FormControl fullWidth>
+      <InputLabel id="demo-simple-select-label" style={{color:"white", fontSize:'16px', paddingBottom:'1vh'}}>Age</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={age}
+          label={age}
+          style={{padding:"10px", display:"flex",color:'white'}}
+          onChange={handleChange}
+        >
+            
+          <MenuItem value={10}>Ten</MenuItem>
+          <MenuItem value={20}>Twenty</MenuItem>
+          <MenuItem value={30}>Thirty</MenuItem>
+        </Select>
+      </FormControl> */}
+    </Box>
                                         <Button variant="contained" style={{ color: "white" }} onClick={() => { settabel(false) }}>Create</Button>
                                     </div>
                                 </MDTypography>

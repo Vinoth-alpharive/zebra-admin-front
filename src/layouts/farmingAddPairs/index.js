@@ -81,6 +81,8 @@ function Users() {
 
   const [id, setId] = useState();
 
+  const [selected, setSelected] = useState()
+
   const [userId, setUserId] = useState();
 
   function isValidEmail(email) {
@@ -125,6 +127,8 @@ function Users() {
   }
 
   const updateValue = async (ele) => {
+    console.log("🚀 ~ updateValue ~ ele:", ele)
+    setSelected(ele)
     setId(ele?._id)
     setname(ele?.name)
     setEmail(ele?.rpc_Url)
@@ -226,6 +230,13 @@ function Users() {
           {element?.Token_Symbol}
         </MDTypography>
       )
+      // temp.balance = (
+      //   <MDTypography variant="caption" color="text" fontWeight="medium">
+      //     <MDButton color="info" size="small" onClick={() => { setOpen(true); updateValue(element) }} >
+      //       Add
+      //     </MDButton>
+      //   </MDTypography>
+      // )
       // temp.action = (
       //   <Grid container spacing={1} mr={3} px={3} justifyContent="end">
       //     <Grid item xs={12} md={4} >
@@ -256,6 +267,7 @@ function Users() {
         { Header: "LP Token ", accessor: "Chain", width: "10%", align: "center" },
         { Header: "Token Address", accessor: "Rpcurl", align: "center" },
         { Header: "Allocation Point", accessor: "start", align: "center" },
+        // { Header: "Add Balance", accessor: "balance", align: "center" },
         // { Header: "Action", accessor: "action", width: "10%", align: "center" },
       ],
       rows: tempArr
@@ -286,7 +298,7 @@ function Users() {
           <Fade in={open}>
             <Box sx={style}>
               <MDTypography id="transition-modal-title" variant="h5" component="h5">
-                Edit Chain
+                Add Amount
               </MDTypography>
               <div style={{ display: "flex", flexDirection: "column", margin: "auto", textAlign: "center", gap: "1em", padding: "1em" }}>
 
@@ -294,18 +306,17 @@ function Users() {
                   value={name}
                   onChange={(e) => {
                     setname(e.target.value); setnameError(null)
-                  }} label="Chain" variant="outlined" />
-
+                  }} label="Amount" variant="outlined" />
                 {nameerror && <p style={{ color: 'red', fontSize: "12px" }}> {nameerror}</p>}
 
-                <TextField id="outlined-basic" label="RpcUrl"
+                {/* <TextField id="outlined-basic" label="RpcUrl"
                   value={email}
                   onChange={(e) => {
                     //    console.log(e.target.value,"Done ")
                     setEmail(e.target.value); setemailError(null)
-                  }} variant="outlined" />
+                  }} variant="outlined" /> */}
 
-                {emailerror && <p style={{ color: 'red', fontSize: "12px" }}> {emailerror}</p>}
+                {/* {emailerror && <p style={{ color: 'red', fontSize: "12px" }}> {emailerror}</p>} */}
 
               </div>
 
@@ -317,7 +328,7 @@ function Users() {
                   style={{ margin: "0 10px" }}
                   onClick={() => { updates() }}
                 >
-                  Update
+                  Add
                 </MDButton>
               </Box>
             </Box>

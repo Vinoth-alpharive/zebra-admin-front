@@ -20,7 +20,7 @@ import WithdrawList from "./components/WithdrawList";
 import usercalls from "../../auth/endpoints";
 import { ToastContainer, toast } from 'react-toastify'
 import moment from "moment";
-
+import Switch from '@mui/material/Switch';
 import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
@@ -101,7 +101,7 @@ function Users() {
     setLoading(true);
     var url = endpoints.admin_Network;
     try {
-      const data = await path.getCall({ url });
+      const data = await path.postCall({ url });
       const result = await data.json();
       console.log(result, "res")
       if (result.success === true) {
@@ -186,6 +186,45 @@ function Users() {
   const status = (id) => {
     if (id === "1") {
       getdata()
+    }
+  }
+
+  const changeStatus = async (Id) => {
+    try {
+      const url = endpoints.removeNetwork;
+      const payload = { Id: Id }
+      const data = await path.postCall({ url, payload });
+      const result = await data.json();
+      if (result?.success == true) {
+        toast.success(result?.message, {
+          duration: 3000,
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'colored',
+        })
+        getdata()
+      } else {
+        toast.error(result?.message, {
+          duration: 3000,
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'colored',
+        })
+      }
+
+    } catch (error) {
+      console.log("🚀 ~ changeStatus ~ error:", error)
+
     }
   }
 
@@ -365,6 +404,13 @@ function Users() {
             <MDButton color="info" size="small" onClick={() => { setOpen(true); updateValue(element) }} >
               View
             </MDButton>
+          </Grid>
+          <Grid item xs={12} md={4} >
+            <Switch
+              checked={(element?.isVisible == true ? true : false)}
+              onChange={() => { changeStatus(element?._id) }}
+              inputProps={{ 'aria-label': 'controlled' }}
+            />
           </Grid>
           {/* <Grid item xs={12} md={4} >
             <MDButton color="info" size="small" onClick={() => userWallet(element)}>

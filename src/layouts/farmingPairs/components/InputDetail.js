@@ -35,7 +35,10 @@ import { useRef } from "react";
 import FormControl from '@mui/material/FormControl';
 import { useEffect } from "react";
 import MenuItem from '@mui/material/MenuItem';
-
+import farmingAbi from '../../../web3/ABI/farmingABI.json'
+import ethFarmingAddress from '../../../web3/contract/ethFarmingAddress'
+import wanFarmingAddress from '../../../web3/contract/wanFarmingAddress'
+import loader from '../../../assets/images/loader1.gif'
 
 const useStyles = makeStyles({
     grid: {
@@ -91,7 +94,7 @@ function InputDetail({ settabel }) {
     // };
 
 
-
+    const [loading, setLoading] = useState(false)
     const path = usercalls();
 
     const coin1 = useRef()
@@ -151,85 +154,111 @@ function InputDetail({ settabel }) {
                 setCoin6error("Please Select Network")
             }
             else {
+                setLoading(true)
                 const url = endpoints.farmingPairs;
                 const payload = {
                     Network: chaid
                 }
                 const data = await path.postCall({ url, payload });
                 const result = await data.json();
+
                 const address = await window.ethereum.request({
                     method: "eth_requestAccounts"
                 });
+
                 const contract = new WEB.eth.Contract(result?.result?.abi);
                 let defaultAccount = address[0]
-
+                var transhash
                 const deployedContract = await contract
                     .deploy({ data: '0x' + result?.result?.bytecode })
                     .send({
-                        from: defaultAccount, gas: 3032132
+                        from: defaultAccount, gas: 3042132
                     })
-                    .on('error', function (error) { console.log(error) })
-                    .on('transactionHash', function (transactionHash) { })
+                    .on('error', function (error) { console.log(error); setLoading(false) })
+                    .on('transactionHash', function (transactionHash) { console.log(transactionHash, "transactionHash"); transhash = transactionHash })
                     .on('receipt', function (receipt) { // contains the new contract address
                     })
                     .on('confirmation', function (confirmationNumber, receipt) { })
                     .then(function (newContractInstance) {
+                        console.log(newContractInstance.options.address, "address")
                         return newContractInstance.options.address // instance with the new contract address
                     });
+                console.log(transhash, "hash")
+                console.log(deployedContract, "address")
+                const history = await WEB.eth.getTransaction(transhash)
+                console.log("🚀 ~ file: InputDetail.js:189 ~ submit ~ history:", history)
+                if (history) {
+                    if (deployedContract !== undefined) {
 
-                if (deployedContract !== undefined) {
-                    const contractInstance = await new WEB.eth.Contract(result?.result?.abi, deployedContract)
-                    const initialize = await contractInstance.methods.initialize(coin1.current.value, coin2.current.value, WEB.utils.toWei(coin3.current.value, 'ether'), new Date(startTime).getTime() / 1000, new Date(endTime).getTime() / 1000).send({
-                        from: address[0]
-                    })
-                    if (initialize) {
-                        const url = endpoints.farmingAddPairs;
-                        const payload = {
-                            Reward_Token: coin1.current.value,
-                            Dev_Address: coin2.current.value,
-                            Reward_Per_Sec: WEB.utils.toWei(coin3.current.value, 'ether'),
-                            Start_Time: new Date(startTime).getTime() / 1000,
-                            End_Time: new Date(endTime).getTime() / 1000,
-                            Network: chaid,
-                            contractAddress: deployedContract
+                        const contractInstance = await new WEB.eth.Contract(result?.result?.abi, deployedContract)
+
+
+                        // var contractInstance;
+                        // var contractAdd;
+
+
+                        // if (age?.name === 'Ethereum Mainnet') {
+                        //     contractInstance = await new WEB.eth.Contract(farmingAbi, ethFarmingAddress)
+                        //     contractAdd = ethFarmingAddress
+                        // } else if (age?.name === 'WAN') {
+                        //     contractInstance = await new WEB.eth.Contract(farmingAbi, wanFarmingAddress)
+                        //     contractAdd = wanFarmingAddress
+                        // }
+                        const initialize = await contractInstance.methods.initialize(coin1.current.value, coin2.current.value, WEB.utils.toWei(coin3.current.value, 'ether'), new Date(startTime).getTime() / 1000, new Date(endTime).getTime() / 1000).send({
+                            from: address[0]
+                        })
+                        if (initialize) {
+                            const url = endpoints.farmingAddPairs;
+                            const payload = {
+                                Reward_Token: coin1.current.value,
+                                Dev_Address: coin2.current.value,
+                                Reward_Per_Sec: WEB.utils.toWei(coin3.current.value, 'ether'),
+                                Start_Time: new Date(startTime).getTime() / 1000,
+                                End_Time: new Date(endTime).getTime() / 1000,
+                                Network: chaid,
+                                contractAddress: deployedContract
+                            }
+                            const datas = await path.postCall({ url, payload });
+                            const results = await datas.json();
+                            if (results.success === true) {
+                                coin1.current.value = ""
+                                coin2.current.value = ""
+                                setAge("")
+                                setLoading(false)
+                                toast.success("Network Added successfully", {
+                                    duration: 3000,
+                                    position: 'top-right',
+                                    autoClose: 5000,
+                                    hideProgressBar: false,
+                                    closeOnClick: true,
+                                    pauseOnHover: true,
+                                    draggable: true,
+                                    progress: undefined,
+                                    theme: 'colored',
+                                })
+                                settabel(true)
+                            } else {
+                                setLoading(false)
+                                toast.error(results.message, {
+                                    duration: 3000,
+                                    position: 'top-right',
+                                    autoClose: 5000,
+                                    hideProgressBar: false,
+                                    closeOnClick: true,
+                                    pauseOnHover: true,
+                                    draggable: true,
+                                    progress: undefined,
+                                    theme: 'colored',
+                                })
+                            }
                         }
-                        const datas = await path.postCall({ url, payload });
-                        const results = await datas.json();
-                        if (result.success === true) {
-                            coin1.current.value = ""
-                            coin2.current.value = ""
-                            setAge("")
-                            toast.success("Network Added successfully", {
-                                duration: 3000,
-                                position: 'top-right',
-                                autoClose: 5000,
-                                hideProgressBar: false,
-                                closeOnClick: true,
-                                pauseOnHover: true,
-                                draggable: true,
-                                progress: undefined,
-                                theme: 'colored',
-                            })
-                            settabel(true)
-                        } else {
-                            toast.error(result.message, {
-                                duration: 3000,
-                                position: 'top-right',
-                                autoClose: 5000,
-                                hideProgressBar: false,
-                                closeOnClick: true,
-                                pauseOnHover: true,
-                                draggable: true,
-                                progress: undefined,
-                                theme: 'colored',
-                            })
-                        }
+
                     }
-
                 }
             }
         } catch (error) {
             console.log(error, "erro");
+            setLoading(false)
             toast.error("something went wrong", {
                 duration: 3000,
                 position: 'top-right',
@@ -246,6 +275,9 @@ function InputDetail({ settabel }) {
 
     return (
         <>
+            {
+                loading === true ? <div className='swap-loader'><div className='swap-loader-inner'><img src={loader} className='loadings' /></div></div> : <></>
+            }
             <Button variant="contained" style={{ color: "white", marginLeft: "31.5%" }} onClick={() => { settabel(true) }}>Back</Button>
             <div style={{ display: "flex", flexDirection: "column", width: "40%", margin: "auto", textAlign: "center", gap: "1em", padding: "1em" }}>
                 <TextField id="outlined-basic" label="Reward token"

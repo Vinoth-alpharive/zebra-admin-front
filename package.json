@@ -29,6 +29,7 @@
     "@mui/icons-material": "5.4.1",
     "@mui/lab": "^5.0.0-alpha.99",
     "@mui/material": "^5.13.6",
+    "@mui/material-next": "^6.0.0-alpha.119",
     "@mui/styled-engine": "5.4.1",
     "@mui/styles": "^5.10.2",
     "@mui/x-date-pickers": "^6.10.1",
@@ -69,7 +70,7 @@
     "stylis": "4.0.13",
     "stylis-plugin-rtl": "2.1.1",
     "web-vitals": "2.1.4",
-    "web3": "^4.0.1",
+    "web3": "^1.8.1",
     "web3-validator": "^1.0.2",
     "ws": "^8.8.1",
     "yup": "^0.32.11"

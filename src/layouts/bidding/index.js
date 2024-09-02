@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
-
+import * as React from 'react';
 import TextField from '@mui/material/TextField';
 
 import { CTable } from '@coreui/react';
@@ -83,6 +83,33 @@ const rows = [{ legename: "cricket", team: "india", beton: "cricket", amount: "1
 
 
 function Tables() {
+
+  const [network, setNetwork] = React.useState([]);
+
+  const [age, setAge] = React.useState('');
+
+  const handleChange = async (event) => {
+    setAge(event.target.value);
+    const url = endpoints.transactionhis;
+    const payload = {
+      trade_at: "exchange",
+      Network: event.target.value.name
+    }
+    try {
+      const data = await path.postCall({ url, payload });
+      const result = await data.json();
+      if (result.success === true) {
+        if (result && result.result) {
+          buildData(result.result);
+          setLoading(false);
+        }
+      }
+    }
+    catch (error) {
+      console.error(error);
+    }
+  };
+
   const path = usercalls();
   const [collection, setCollection] = useState({})
   const [loading, setLoading] = useState(true);
@@ -91,7 +118,24 @@ function Tables() {
     getdata();
   }, [matchid])
 
+  useEffect(() => {
+    getnetwork();
+  }, [])
 
+  const getnetwork = async () => {
+    const url = endpoints.admin_Network;
+    try {
+      const data = await path.getCall({ url });
+      const result = await data.json();
+      if (result?.result?.length > 0) {
+        console.log(result?.result[0]?.name, "results")
+        setAge(result?.result[0]?.name)
+      }
+      setNetwork(result.result)
+    } catch (error) {
+
+    }
+  }
 
 
   const getdata = async () => {
@@ -101,7 +145,7 @@ function Tables() {
       trade_at: "exchange"
     }
     try {
-      const data = await path.postCall({ url,payload });
+      const data = await path.postCall({ url, payload });
       const result = await data.json();
       if (result.success === true) {
         if (result && result.result) {
@@ -457,9 +501,32 @@ function Tables() {
                     borderRadius="lg"
                     coloredShadow="info"
                   >
-                    <MDTypography variant="h6" color="white">
-                      Transaction History
-                    </MDTypography>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <MDTypography variant="h6" color="white">
+                        Transaction History
+
+                      </MDTypography>
+                      {age != "" ? <Box sx={{ minWidth: 120, }} style={{ paddingRight: "2vh", paddingTop: "4px" }}>
+                        <FormControl fullWidth>
+                          <InputLabel id="demo-simple-select-label" style={{ color: "white", borderColor: "white", fontSize: '16px', paddingBottom: '1vh' }}>Chain</InputLabel>
+                          <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={age}
+                            defaultValue={'polygon Testnet'}
+                            label="Chain"
+                            style={{ padding: "10px" }}
+                            onChange={handleChange}
+                          >
+                            {network?.map((item) => (
+                              <MenuItem value={item}>{item.name}</MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Box>
+                        :
+                        <></>}
+                    </div>
                   </MDBox>
                   <MDBox pt={3}>
 
